@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package br.ufscar.dc.compiladores.la.sintatico;
 
 import java.io.FileWriter;
@@ -17,7 +12,7 @@ public class Principal {
 
     public static void main(String args[]) throws IOException, ParseCancellationException {
         // Definindo o CharStream para ler do arquivo de entrada e tambem
-        // o LaLexer criado para fazer a analise lexica desse arquivo
+        // o LaSintaticoLexer criado para fazer a analise lexica e sintática desse arquivo
         CharStream cs = CharStreams.fromFileName(args[0]);
         LaSintaticoLexer lex = new LaSintaticoLexer(cs);
 
