@@ -61,7 +61,7 @@ ABREPAR: '(';
 // Fecha parenteses
 FECHAPAR: ')';
 
-// Regras sintaticas
+/* Regras sintaticas */
 
 // Estrutura principal do programa
 programa: declaracoes 'algoritmo' corpo 'fim_algoritmo';
@@ -73,8 +73,9 @@ declaracoes: (decl_local_global)*;
 decl_local_global: declaracao_local | declaracao_global;
 
 // Diferentes tipos de declarações locais
-declaracao_local: 'declare' variavel | 'constante' IDENT ':' tipo_basico '=' valor_constante |
-    'tipo' IDENT ':' tipo;
+declaracao_local: 'declare' variavel |
+                  'constante' IDENT ':' tipo_basico '=' valor_constante |
+                  'tipo' IDENT ':' tipo;
 
 // Declaracao de variaveis
 variavel: identificador (',' identificador)* ':' tipo;
@@ -105,7 +106,7 @@ registro: 'registro' (variavel)* 'fim_registro';
 
 // Definicao de estrutura de declaracao global
 declaracao_global: 'procedimento' IDENT '(' (parametros)? ')' (declaracao_local)* (cmd)* 'fim_procedimento' |
-    'funcao' IDENT '(' (parametros)? ')' ':' tipo_estendido (declaracao_local)* (cmd)* 'fim_funcao';
+                   'funcao' IDENT '(' (parametros)? ')' ':' tipo_estendido (declaracao_local)* (cmd)* 'fim_funcao';
 
 // Definição da estrutura de um parametro de procedimento ou funcao
 parametro: ('var')? identificador (',' identificador)* ':' tipo_estendido;
@@ -118,7 +119,8 @@ parametros: parametro (',' parametro)*;
 corpo: (declaracao_local)* (cmd)*;
 
 // Diferentes tipos de comandos
-cmd: cmdLeia | cmdEscreva | cmdSe | cmdCaso | cmdPara | cmdEnquanto | cmdFaca | cmdAtribuicao | cmdChamada | cmdRetorne;
+cmd: cmdLeia | cmdEscreva | cmdSe | cmdCaso | cmdPara | cmdEnquanto |
+     cmdFaca | cmdAtribuicao | cmdChamada | cmdRetorne;
 
 // Definicao da estrutura do comando 'leia'
 cmdLeia: 'leia' '(' ('^')? identificador (',' ('^')? identificador)* ')';
@@ -165,9 +167,6 @@ numero_intervalo: (op_unario)? NUM_INT ('..' (op_unario)? NUM_INT)?;
 //Definicao de operador unario
 op_unario: '-';
 
-// Definicao de unario na expressao
-exp_unario: '-';
-
 // Definicao de expressao aritmetica de soma
 exp_aritmetica: termo (op1 termo)*;
 
@@ -190,7 +189,8 @@ op3: '%';
 parcela: (op_unario)? parcela_unario | parcela_nao_unario;
 
 //Definicao de diferentes parcelas com operador unario
-parcela_unario: ('^')? identificador | IDENT '(' expressao (',' expressao)* ')'| NUM_INT | NUM_REAL | '(' expressao ')';
+parcela_unario: ('^')? identificador | IDENT '(' expressao (',' expressao)* ')'|
+                NUM_INT | NUM_REAL | '(' expressao ')';
 
 // Definicao de parcela sem nao unaria
 parcela_nao_unario: '&' identificador | CADEIA;
@@ -210,8 +210,8 @@ termo_logico: fator_logico (op_logico_2 fator_logico)*;
 // Fator logico que corresponde a uma parcela logica seguida opcionalmente de um 'nao'
 fator_logico: ('nao')? parcela_logica;
 
-// Parcela ĺogica que corresponde a valores verdade ou expressão relacional
-parcela_logica: ('verdadeiro' | 'falso')* | exp_relacional;
+// Parcela lógica que corresponde a valores verdade ou expressão relacional
+parcela_logica: ('verdadeiro' | 'falso') | exp_relacional;
 
 // Operador logico 'ou'
 op_logico_1: 'ou';

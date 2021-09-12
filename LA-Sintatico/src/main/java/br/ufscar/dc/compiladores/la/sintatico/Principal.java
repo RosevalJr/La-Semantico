@@ -26,12 +26,12 @@ public class Principal {
         FileWriter myWriter = new FileWriter(args[1]);
         try {
             lex.removeErrorListeners();
-            lex.addErrorListener(ErrorListenerLA.INSTANCE);
+            lex.addErrorListener(ErrorListenerLexer.INSTANCE);
             
             CommonTokenStream tokens = new CommonTokenStream(lex);
             LaSintaticoParser parser = new LaSintaticoParser(tokens);
             
-            CustomErrorListener mcel = new CustomErrorListener();
+            ErrorListenerSintatico mcel = new ErrorListenerSintatico();
             parser.addErrorListener(mcel);
             
             parser.programa();

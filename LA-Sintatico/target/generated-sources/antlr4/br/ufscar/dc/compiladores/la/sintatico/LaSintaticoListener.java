@@ -338,16 +338,6 @@ public interface LaSintaticoListener extends ParseTreeListener {
 	 */
 	void exitOp_unario(LaSintaticoParser.Op_unarioContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link LaSintaticoParser#exp_unario}.
-	 * @param ctx the parse tree
-	 */
-	void enterExp_unario(LaSintaticoParser.Exp_unarioContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link LaSintaticoParser#exp_unario}.
-	 * @param ctx the parse tree
-	 */
-	void exitExp_unario(LaSintaticoParser.Exp_unarioContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link LaSintaticoParser#exp_aritmetica}.
 	 * @param ctx the parse tree
 	 */

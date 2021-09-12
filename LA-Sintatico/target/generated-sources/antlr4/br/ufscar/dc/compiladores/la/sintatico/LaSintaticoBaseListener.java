@@ -412,18 +412,6 @@ public class LaSintaticoBaseListener implements LaSintaticoListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterExp_unario(LaSintaticoParser.Exp_unarioContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitExp_unario(LaSintaticoParser.Exp_unarioContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterExp_aritmetica(LaSintaticoParser.Exp_aritmeticaContext ctx) { }
 	/**
 	 * {@inheritDoc}
