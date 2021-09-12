@@ -1,5 +1,5 @@
-# La-Lexico
-Analisador léxico para a [linguagem LA (Linguagem Algorítmica)](https://docs.google.com/document/d/1ZuFtrLSeC-Fkh24oacKs5KBibHp_27CrFnQISZwHR2c/edit).
+# La-Sintatico
+Analisador léxico e sintático para a [linguagem LA (Linguagem Algorítmica)](https://docs.google.com/document/d/1ZuFtrLSeC-Fkh24oacKs5KBibHp_27CrFnQISZwHR2c/edit).
 
 ## Autores
 
@@ -10,7 +10,7 @@ Yuri Gabriel Aragão da Silva - 758608
 ## Sobre o trabalho
 
 Este trabalho foi desenvolvido através da linguagem Java utilizando a API fornecida pela biblioteca ANTLR4 (ANother Tool for Language Recognition),
-com o propósito de efetuar uma análise léxica na linguagem LA elaborada pelo professor Jander Moreira. O desenvolvimento deste trabalho
+com o propósito de efetuar uma análise léxica e sintática na linguagem LA elaborada pelo professor Jander Moreira. O desenvolvimento deste trabalho
 baseou-se nas aulas disponibilizadas pelo professor Daniel Lucrédio durante o período letivo ENPE 3.
 
 ## Dependências
@@ -27,17 +27,17 @@ As dependências encontram-se no arquivo pom.xml
 * Openjdk 11.0.11 2021-04-20 - ou versão superior
 * OpenJDK 64-Bit Server VM
 
-## Execução do analisador léxico
+## Execução do analisador sintático
 
 Primeiramente é recomendado instalar a IDE NetBeans 12.4 ou versão superior, efetuar o comando build & clean provido pelo botão da interface.
 
-Após isso, será gerado um arquivo La-Lexico/LA-lexico/target/LA-lexico-1.0-SNAPSHOT-jar-with-dependencies.jar
+Após isso, será gerado um arquivo La-Sintatico/LA-Sintatico/target/LA-Sintatico-1.0-SNAPSHOT-jar-with-dependencies.jar
 que será utilizado para efetuar a execução do projeto.
 
 Para efetuar a execução, utiliza-se o seguinte comando:
 
 ```
-java -jar La-Lexico/LA-lexico/target/LA-lexico-1.0-SNAPSHOT-jar-with-dependencies.jar [Arquivo de entrada] [Arquivo de saída]
+java -jar La-Sintatico/LA-Sintatico/target/LA-Sintatico-1.0-SNAPSHOT-jar-with-dependencies.jar [Arquivo de entrada] [Arquivo de saída]
 ```
 
 Esse comando considera o caminho relativo do projeto e pressupõe que o java já esteja instalado em seu computador com as
