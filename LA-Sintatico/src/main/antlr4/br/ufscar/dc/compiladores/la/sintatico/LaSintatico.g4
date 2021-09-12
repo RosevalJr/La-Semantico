@@ -63,7 +63,7 @@ FECHAPAR: ')';
 
 // Regras sintaticas
 
-//
+// X
 programa: declaracoes 'algoritmo' corpo 'fim_algoritmo';
 
 //

@@ -25,6 +25,9 @@ public class Principal {
         // codigo de entrada
         FileWriter myWriter = new FileWriter(args[1]);
         try {
+            lex.removeErrorListeners();
+            lex.addErrorListener(ErrorListenerLA.INSTANCE);
+            
             CommonTokenStream tokens = new CommonTokenStream(lex);
             LaSintaticoParser parser = new LaSintaticoParser(tokens);
             
