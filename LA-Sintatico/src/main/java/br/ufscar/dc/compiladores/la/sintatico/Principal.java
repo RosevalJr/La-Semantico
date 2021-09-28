@@ -1,5 +1,6 @@
 package br.ufscar.dc.compiladores.la.sintatico;
 
+import br.ufscar.dc.compiladores.la.sintatico.LaSintaticoParser.ProgramaContext;
 import java.io.FileWriter;
 import java.io.IOException;
 import org.antlr.v4.runtime.CharStream;
@@ -29,7 +30,15 @@ public class Principal {
             ErrorListenerSintatico mcel = new ErrorListenerSintatico();
             parser.addErrorListener(mcel);
             
-            parser.programa();
+            ProgramaContext arvore = parser.programa();
+            LaSemantico sem = new LaSemantico();
+            sem.visitPrograma(arvore); // Comeca visitando pelo no mais acima
+            
+            // Printa todos os erros semanticos encontrados.
+            LaSemanticoUtils utils = new LaSemanticoUtils();
+            for(var s: utils.errosSemanticos){
+                myWriter.write(s);
+            }
 
         } catch (ParseCancellationException e) {
             myWriter.write(e.getMessage());

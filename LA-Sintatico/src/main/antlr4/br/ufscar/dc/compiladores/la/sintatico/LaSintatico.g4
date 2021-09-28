@@ -176,7 +176,7 @@ termo: fator (op2 fator)*;
 // Definicao de fator por operacao de resto de divisao em parcelas
 fator: parcela (op3 parcela)*;
 
-// Operadores de adicao e subtracao
+// Operadores de adicao e subtracaoFatorContext ctx
 op1: '+' | '-';
 
 // Operadores de multiplicacao e divisao
