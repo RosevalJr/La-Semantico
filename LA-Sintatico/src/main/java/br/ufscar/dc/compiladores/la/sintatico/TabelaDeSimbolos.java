@@ -23,7 +23,10 @@ public class TabelaDeSimbolos {
         LITERAL,
         LOGICO,
         INVALIDO,
-        PONTEIRO
+        PONT_INT,
+        PONT_LOG,
+        PONT_REA,
+        PONT_LIT
     }
     
     private final Map<String, EntradaTabelaDeSimbolos> tabela;

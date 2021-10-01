@@ -4,6 +4,9 @@ import br.ufscar.dc.compiladores.la.sintatico.TabelaDeSimbolos.TipoLaVariavel;
 
 public class LaSemantico extends LaSintaticoBaseVisitor<Void> {
 
+    /*1. Identificador (variável, constante, procedimento, função, tipo) já declarado anteriormente no escopo. [X]
+      2. Tipo não declarado. [X]
+      3. Identificador (variável, constante, procedimento, função) não declarado []*/
     TabelaDeSimbolos tabela;
     
     Escopos escoposAninhados = new Escopos(); // Inicializa o escopo global.
@@ -12,14 +15,6 @@ public class LaSemantico extends LaSintaticoBaseVisitor<Void> {
     @Override
     public Void visitPrograma(LaSintaticoParser.ProgramaContext ctx) {
         // tabela = new TabelaDeSimbolos(); // Cria o escopo global.
-        if(ctx.corpo() != null){
-            if(ctx.corpo().cmd() != null){
-                for(var c: ctx.corpo().cmd()){
-                    if(c.cmdRetorne() != null)
-                        System.out.println("Aqui nao deveria ter Retorne!");
-                }
-            }
-        }
         return super.visitPrograma(ctx);  // visita os filhos.
     }
     
@@ -64,12 +59,29 @@ public class LaSemantico extends LaSintaticoBaseVisitor<Void> {
                 // CONSTANTE
                 if(escopoAtual.existe(identificador))
                     utils.adicionarErroSemantico(ctx.IDENT().getSymbol(),"identificador " + identificador + " ja declarado anteriormente\n");
-                else
-                    escopoAtual.adicionar(identificador, TabelaDeSimbolos.TipoLaIdentificador.CONSTANTE, null);
+                else{
+                    String tipoDoConstante = ctx.tipo_basico().getText();
+                    switch(tipoDoConstante){
+                        case "inteiro":
+                            escopoAtual.adicionar(identificador, TabelaDeSimbolos.TipoLaIdentificador.CONSTANTE, TipoLaVariavel.INTEIRO);
+                            break;
+                        case "literal":
+                            escopoAtual.adicionar(identificador, TabelaDeSimbolos.TipoLaIdentificador.CONSTANTE, TipoLaVariavel.LITERAL);
+                            break;
+                        case "real":
+                            escopoAtual.adicionar(identificador, TabelaDeSimbolos.TipoLaIdentificador.CONSTANTE, TipoLaVariavel.REAL);
+                            break;
+                        case "logico":
+                            escopoAtual.adicionar(identificador, TabelaDeSimbolos.TipoLaIdentificador.CONSTANTE, TipoLaVariavel.LOGICO);
+                            break;
+                        default: // Nunca chega
+                            break;
+                    }
+                }
             }
             else{ // 'tipo' IDENT ':' tipo
-                // TIPO
-                if(escopoAtual.existe(identificador))
+                // TIPO | Neste caso pode existir por ser a declaracao de uma variavel do tipo declarado aqui ai vai ter dois mesmo.
+                if(escopoAtual.existe(identificador)) 
                     utils.adicionarErroSemantico(ctx.IDENT().getSymbol(),"identificador " + identificador + " ja declarado anteriormente\n");
                 else
                     escopoAtual.adicionar(identificador, TabelaDeSimbolos.TipoLaIdentificador.TIPO, null);
@@ -94,11 +106,12 @@ public class LaSemantico extends LaSintaticoBaseVisitor<Void> {
             for(var ident: test.IDENT()){
                 conca += ident;
             }
-            
+             // Para causar erro tem que ser uma variavel sendo declarada.
             if(escopoAtual.existe(conca))// Aqui pode dar erro por que estou pegando só o token Inicial do IDENT.
                 utils.adicionarErroSemantico(test.IDENT(0).getSymbol(),"identificador " + conca + " ja declarado anteriormente\n");
             else{ // Checa que tipo é a variavel.
                 String tipoDaVariavel = ctx.tipo().getText();
+                System.out.println("---" + conca + ":" + tipoDaVariavel + "---");
                 switch(tipoDaVariavel){
                     case "inteiro":
                         escopoAtual.adicionar(conca, TabelaDeSimbolos.TipoLaIdentificador.VARIAVEL, TipoLaVariavel.INTEIRO);
@@ -109,13 +122,33 @@ public class LaSemantico extends LaSintaticoBaseVisitor<Void> {
                     case "real":
                         escopoAtual.adicionar(conca, TabelaDeSimbolos.TipoLaIdentificador.VARIAVEL, TipoLaVariavel.REAL);
                         break;
-                    case "registro":
-                        escopoAtual.adicionar(conca, TabelaDeSimbolos.TipoLaIdentificador.VARIAVEL, TipoLaVariavel.PONTEIRO);
-                        break;
                     case "logico":
                         escopoAtual.adicionar(conca, TabelaDeSimbolos.TipoLaIdentificador.VARIAVEL, TipoLaVariavel.LOGICO);
                         break;
-                    default: // Nunca chega aqui se nao era erro sintatico.
+                    case "^logico":
+                        escopoAtual.adicionar(conca, TabelaDeSimbolos.TipoLaIdentificador.VARIAVEL, TipoLaVariavel.PONT_LOG);
+                        break;
+                    case "^real":
+                        escopoAtual.adicionar(conca, TabelaDeSimbolos.TipoLaIdentificador.VARIAVEL, TipoLaVariavel.PONT_REA);
+                        break;
+                    case "^literal":
+                        escopoAtual.adicionar(conca, TabelaDeSimbolos.TipoLaIdentificador.VARIAVEL, TipoLaVariavel.PONT_LIT);
+                        break;
+                    case "^inteiro":
+                        escopoAtual.adicionar(conca, TabelaDeSimbolos.TipoLaIdentificador.VARIAVEL, TipoLaVariavel.PONT_INT);
+                        break;                       
+                    default: // Se chegar aqui e um tipo nao basico.
+                        // Caso o tipo foi declarado no escopoAtual !!! Na verdade ele tem que ser global?
+                        // TipoDaVariavel esta null!
+                        if(escopoAtual.existe(tipoDaVariavel) && escopoAtual.verificar(tipoDaVariavel).tipoIdentificaor == TabelaDeSimbolos.TipoLaIdentificador.TIPO){
+                            // Caso a variavel ja existe e ela for do tipo registro aponta erro
+                            if(escopoAtual.existe(conca))
+                                utils.adicionarErroSemantico(test.IDENT(0).getSymbol(),"identificador " + conca + " ja declarado anteriormente\n");
+                            else // Caso contrario ela pode entrar no escopo
+                                escopoAtual.adicionar(conca, TabelaDeSimbolos.TipoLaIdentificador.REGISTRO, null);
+                        }
+                        if(!escopoAtual.existe(tipoDaVariavel)) // Caso o tipo nao exista mesmo, entao e um tipo nao declarado!
+                            utils.adicionarErroSemantico(test.IDENT(0).getSymbol(), "tipo " + tipoDaVariavel + " nao declarado\n"); // Aqui esta errado !
                         break;
                 }
             }
@@ -128,6 +161,53 @@ public class LaSemantico extends LaSintaticoBaseVisitor<Void> {
         
         return super.visitVariavel(ctx); // visita os filhos.
     }
-
-
+    
+    // Testando se os identificadores ja foram declarados !
+    @Override 
+    public Void visitCmd(LaSintaticoParser.CmdContext ctx){
+        
+        
+        // Pode pegar direto o identificador.
+        if(ctx.cmdLeia() != null){
+            TabelaDeSimbolos escopoAtual = escoposAninhados.obterEscopoAtual();
+            for(var ident: ctx.cmdLeia().identificador()){
+                if(!escopoAtual.existe(ident.getText()))
+                    utils.adicionarErroSemantico(ident.IDENT(0).getSymbol(), "identificador " + ident.getText() + " nao declarado\n");
+            }
+        }
+        
+        // Nao pega direto
+        if(ctx.cmdEscreva() != null){
+            TabelaDeSimbolos escopoAtual = escoposAninhados.obterEscopoAtual();
+            for(var exp: ctx.cmdEscreva().expressao()){
+                System.out.println("HAHA");
+                if(exp != null)
+                    utils.verificarTipo(escopoAtual, exp);
+                else
+                    System.out.println("MAS ORAS!");
+            }
+        }
+        
+        if(ctx.cmdEnquanto() != null){
+            TabelaDeSimbolos escopoAtual = escoposAninhados.obterEscopoAtual();
+            utils.verificarTipo(escopoAtual, ctx.cmdEnquanto().expressao());
+        }
+        
+        if(ctx.cmdAtribuicao() != null){
+            TabelaDeSimbolos escopoAtual = escoposAninhados.obterEscopoAtual();
+            String conca = "";
+            for(var ident: ctx.cmdAtribuicao().identificador().IDENT()){
+                conca += ident.getText();
+            }
+            if(!escopoAtual.existe(conca))
+                    utils.adicionarErroSemantico(ctx.cmdAtribuicao().identificador().IDENT(0).getSymbol(), "identificador " + conca + " nao declarado\n");
+        }
+        
+        if(ctx.cmdSe() != null){
+            TabelaDeSimbolos escopoAtual = escoposAninhados.obterEscopoAtual();
+            utils.verificarTipo(escopoAtual, ctx.cmdSe().expressao());
+        }
+        
+        return super.visitCmd(ctx);
+    }
 }
