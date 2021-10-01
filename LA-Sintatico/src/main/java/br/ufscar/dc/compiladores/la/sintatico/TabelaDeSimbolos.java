@@ -39,6 +39,11 @@ public class TabelaDeSimbolos {
         tabela.put(nome, new EntradaTabelaDeSimbolos(nome, tipoIdentificador, tipoVariavel));
     }
     
+    // Isso e utilizado em novos tipos/registros e funcoes.
+    public void adicionar(String nome, TipoLaIdentificador tipoIdentificador, TipoLaVariavel tipoVariavel, TabelaDeSimbolos argsRegFunc){
+        tabela.put(nome, new EntradaTabelaDeSimbolos(nome, tipoIdentificador, tipoVariavel, argsRegFunc));
+    }
+            
     public boolean existe(String nome) {
         return tabela.containsKey(nome);
     }
