@@ -10,11 +10,29 @@ public class LaSemantico extends LaSintaticoBaseVisitor<Void> {
       3. Identificador (variável, constante, procedimento, função) não declarado [X] -  Fiz cobrir os casos que estao nos casos de teste. [X]*/
     
     Escopos escoposAninhados = new Escopos(); // Inicializa o escopo global.
-    LaSemanticoUtils utils = new LaSemanticoUtils(); // Verificador de tipos.
+    LaSemanticoUtils utils = new LaSemanticoUtils(); // Verificador de tipos e modulos que auxiliam na analise semantica.
 
     @Override
-    public Void visitPrograma(LaSintaticoParser.ProgramaContext ctx) {
+    public Void visitPrograma(LaSintaticoParser.ProgramaContext ctx) { // Faz checagem de retorno invalido em funcoes e main. (procedimento nao tem retorno?)
         
+        // O Corpo do programa nao deve ter RETORNE !
+        for(var ctxCmd: ctx.corpo().cmd()){
+            if(ctxCmd.cmdRetorne() != null){
+                utils.adicionarErroSemantico(ctxCmd.cmdRetorne().getStart(),"comando retorne nao permitido nesse escopo\n");
+            }
+        }
+        
+        // Procedimentos nao devem ter RETORNE!
+        for(var ctxDec : ctx.declaracoes().decl_local_global()){
+            if(ctxDec.declaracao_global() != null){
+                if( ctxDec.declaracao_global().tipo_estendido() == null){
+                    for(var ctxCmd: ctxDec.declaracao_global().cmd()){
+                        if(ctxCmd.cmdRetorne() != null)
+                            utils.adicionarErroSemantico(ctxCmd.cmdRetorne().getStart(),"comando retorne nao permitido nesse escopo\n");
+                    }
+                }
+            }
+        }
         return super.visitPrograma(ctx);  // visita os filhos.
     }
     
