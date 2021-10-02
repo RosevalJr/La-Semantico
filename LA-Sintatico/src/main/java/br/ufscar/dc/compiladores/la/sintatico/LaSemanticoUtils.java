@@ -149,19 +149,29 @@ public class LaSemanticoUtils {
             }
         }
         if(ctx.identificador() != null){ // OK
-            String identificador = ctx.identificador().getText();
-            String[] nomePartes = identificador.split("\\.");
-            
-            if(!tabela.existe(nomePartes[0])){
-                adicionarErroSemantico(ctx.identificador().IDENT(0).getSymbol(), "identificador " + identificador + " nao declarado\n");
+            if(!ctx.identificador().getText().contains("[") && ctx.identificador().getText().contains("]")){ // Caso tenha dimensao.
+                String identificador = ctx.identificador().getText();
+                String[] nomePartes = identificador.split("\\.");
+
+                if(!tabela.existe(nomePartes[0])){
+                    adicionarErroSemantico(ctx.identificador().IDENT(0).getSymbol(), "identificador " + identificador + " nao declarado\n");
+                }
+                else{
+                    EntradaTabelaDeSimbolos possivelRegistro = tabela.verificar(nomePartes[0]);
+                    if(possivelRegistro.tipoIdentificaor == TabelaDeSimbolos.TipoLaIdentificador.REGISTRO && nomePartes.length > 1){
+                        TabelaDeSimbolos camposRegistro = possivelRegistro.argsRegFunc;
+                        if(!camposRegistro.existe(nomePartes[1])){
+                            adicionarErroSemantico(ctx.identificador().IDENT(0).getSymbol(), "identificador " + identificador + " nao declarado\n");
+                        }
+                    }
+                }
             }
             else{
-                EntradaTabelaDeSimbolos possivelRegistro = tabela.verificar(nomePartes[0]);
-                if(possivelRegistro.tipoIdentificaor == TabelaDeSimbolos.TipoLaIdentificador.REGISTRO && nomePartes.length > 1){
-                    TabelaDeSimbolos camposRegistro = possivelRegistro.argsRegFunc;
-                    if(!camposRegistro.existe(nomePartes[1])){
-                        adicionarErroSemantico(ctx.identificador().IDENT(0).getSymbol(), "identificador " + identificador + " nao declarado\n");
-                    }
+                // Verifica se as variaveis usadas dentro da dimensao foram ja declaradas.
+                for(var xp: ctx.identificador().dimensao().exp_aritmetica())
+                    verificarTipo(tabela, xp);
+                if(!tabela.existe(ctx.identificador().IDENT(0).getText())){
+                    adicionarErroSemantico(ctx.identificador().IDENT(0).getSymbol(), "identificador " + ctx.identificador().IDENT(0).getText() + " nao declarado\n");
                 }
             }
         }
@@ -182,19 +192,29 @@ public class LaSemanticoUtils {
             ret = TabelaDeSimbolos.TipoLaVariavel.LITERAL;
         }
         else{ // identificador: IDENT ("." IDENT)* dimensao
-            String identificador = ctx.identificador().getText();
-            String[] nomePartes = identificador.split("\\.");
-            
-            if(!tabela.existe(nomePartes[0])){
-                adicionarErroSemantico(ctx.identificador().IDENT(0).getSymbol(), "identificador " + identificador + " nao declarado\n");
+            if(!ctx.identificador().getText().contains("[") && ctx.identificador().getText().contains("]")){ // Caso tenha dimensao.
+                String identificador = ctx.identificador().getText();
+                String[] nomePartes = identificador.split("\\.");
+
+                if(!tabela.existe(nomePartes[0])){
+                    adicionarErroSemantico(ctx.identificador().IDENT(0).getSymbol(), "identificador " + identificador + " nao declarado\n");
+                }
+                else{
+                    EntradaTabelaDeSimbolos possivelRegistro = tabela.verificar(nomePartes[0]);
+                    if(possivelRegistro.tipoIdentificaor == TabelaDeSimbolos.TipoLaIdentificador.REGISTRO && nomePartes.length > 1){
+                        TabelaDeSimbolos camposRegistro = possivelRegistro.argsRegFunc;
+                        if(!camposRegistro.existe(nomePartes[1])){
+                            adicionarErroSemantico(ctx.identificador().IDENT(0).getSymbol(), "identificador " + identificador + " nao declarado\n");
+                        }
+                    }
+                }
             }
             else{
-                EntradaTabelaDeSimbolos possivelRegistro = tabela.verificar(nomePartes[0]);
-                if(possivelRegistro.tipoIdentificaor == TabelaDeSimbolos.TipoLaIdentificador.REGISTRO && nomePartes.length > 1){
-                    TabelaDeSimbolos camposRegistro = possivelRegistro.argsRegFunc;
-                    if(!camposRegistro.existe(nomePartes[1])){
-                        adicionarErroSemantico(ctx.identificador().IDENT(0).getSymbol(), "identificador " + identificador + " nao declarado\n");
-                    }
+                // Verifica se as variaveis usadas dentro da dimensao foram ja declaradas.
+                for(var xp: ctx.identificador().dimensao().exp_aritmetica())
+                    verificarTipo(tabela, xp);
+                if(!tabela.existe(ctx.identificador().IDENT(0).getText())){
+                    adicionarErroSemantico(ctx.identificador().IDENT(0).getSymbol(), "identificador " + ctx.identificador().IDENT(0).getText() + " nao declarado\n");
                 }
             }
         }
