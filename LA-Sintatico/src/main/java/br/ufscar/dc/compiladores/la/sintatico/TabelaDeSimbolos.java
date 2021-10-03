@@ -3,10 +3,12 @@ package br.ufscar.dc.compiladores.la.sintatico;
 import java.util.HashMap;
 import java.util.Map;
 
-// Talvez seja suficiente ter uma tabela de simbolos global, e uma local pra cada escopo.
+// Classe de tabela de simbolos, utilizada para manter o controle de tipos de identificadores, variaveis
+// paramentrosde funcoes e procedimento e variaveis de registros. A tabela sera um hashMap tendo como chave
+// o nome do identificador e como conteudo uma EntradaTabelaDeSimbolos.
 public class TabelaDeSimbolos {
     
-    // O que é o identificador?
+    // Tipo do identificador.
     public enum TipoLaIdentificador{
         FUNCAO,
         PROCEDIMENTO,
@@ -16,7 +18,7 @@ public class TabelaDeSimbolos {
         CONSTANTE
     }
     
-    // Existem diversos tipos para as variaveis.
+    // Tipo da variavel.
     public enum TipoLaVariavel {
         INTEIRO,
         REAL,
@@ -39,7 +41,8 @@ public class TabelaDeSimbolos {
         tabela.put(nome, new EntradaTabelaDeSimbolos(nome, tipoIdentificador, tipoVariavel));
     }
     
-    // Isso e utilizado em novos tipos/registros e funcoes.
+    // Esse adicionar é utilizado para inserir uma tabela de simbolos dentro da entrada de tabela de simbolos, dessa forma é possivel
+    // manter o controle dos tipos das variaveis de cada registro e futuramente parametros de funcoes e procedimentos.
     public void adicionar(String nome, TipoLaIdentificador tipoIdentificador, TipoLaVariavel tipoVariavel, TabelaDeSimbolos argsRegFunc){
         tabela.put(nome, new EntradaTabelaDeSimbolos(nome, tipoIdentificador, tipoVariavel, argsRegFunc));
     }
@@ -52,10 +55,11 @@ public class TabelaDeSimbolos {
         return tabela.get(nome);
     }
     
+    // Metodo utilizado para debuging, visualizando o que tem na tabela.
     public void print(){
         for(var hehe: tabela.values()){
             System.out.println("-----\nNome: " + hehe.nome);
-            System.out.println("TipoIdentificador: " + hehe.tipoIdentificaor);
+            System.out.println("TipoIdentificador: " + hehe.tipoIdentificador);
             if(hehe.tipoVariavel != null)
                 System.out.println("TipoVariavel: " + hehe.tipoVariavel);
         }

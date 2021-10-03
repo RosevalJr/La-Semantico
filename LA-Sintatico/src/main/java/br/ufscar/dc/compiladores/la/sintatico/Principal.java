@@ -30,7 +30,7 @@ public class Principal {
             ErrorListenerSintatico mcel = new ErrorListenerSintatico();
             parser.addErrorListener(mcel);
             
-            ProgramaContext arvore = parser.programa();
+            ProgramaContext arvore = parser.programa(); // Gera a arvore sintatica.
             LaSemantico sem = new LaSemantico();
             sem.visitPrograma(arvore); // Comeca visitando pelo no mais acima
             

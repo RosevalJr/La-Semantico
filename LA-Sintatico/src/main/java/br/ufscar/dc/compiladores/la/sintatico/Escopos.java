@@ -3,12 +3,14 @@ package br.ufscar.dc.compiladores.la.sintatico;
 import java.util.LinkedList;
 import java.util.List;
 
+// Pilha de tabelas de simbolos, utilizada para manter os diversos escopos do programa.
+// Ainda estou estudando para ver se ela é necessaria neste trabalho.
 public class Escopos {
     private LinkedList<TabelaDeSimbolos> pilhaDeTabelas;
     
     public Escopos(){
         pilhaDeTabelas = new LinkedList<>();
-        criarNovoEscopo(); // Comeca com o escopo globao.
+        criarNovoEscopo(); // Comeca com o escopo global.
     }
     
     public void criarNovoEscopo(){
@@ -20,7 +22,7 @@ public class Escopos {
     }
     
     // Tabalha com list por que talvez nos queremos alguma variaveis que esta la
-    // dentro do escopo globao.
+    // dentro do escopo global.
     public List<TabelaDeSimbolos> percorrerEscoposAninhados(){
         return pilhaDeTabelas;
     }
