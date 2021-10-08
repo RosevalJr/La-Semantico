@@ -4,7 +4,9 @@ import java.util.LinkedList;
 import java.util.List;
 
 // Pilha de tabelas de simbolos, utilizada para manter os diversos escopos do programa.
-// Ainda estou estudando para ver se ela é necessaria neste trabalho.
+// Nesta implementação feita do analisador semantico, terão no maximo 2 escopos, o mais ao fundo
+// sendo o escopo global do programa e o mais a frente o escopo da ultima funcao ou procedimento.
+// Quando o analisador chega no corpo do programa é mantido apenas o escopo global.
 public class Escopos {
     private LinkedList<TabelaDeSimbolos> pilhaDeTabelas;
     
@@ -30,4 +32,6 @@ public class Escopos {
     public void abandonarEscopo(){
         pilhaDeTabelas.pop();
     }
+    
+    
 }

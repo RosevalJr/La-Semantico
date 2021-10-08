@@ -7,14 +7,25 @@ class EntradaTabelaDeSimbolos {
         String nome;
         TabelaDeSimbolos.TipoLaIdentificador tipoIdentificador;
         TabelaDeSimbolos.TipoLaVariavel tipoVariavel;
+        // Tabela de simbolos aninhada para armazenar parametros de funcao e procedimento ou campos de registro.
         TabelaDeSimbolos argsRegFunc;
+        // Tipo de retorna de funcao, ou TIPO de registro.
+        String tipoEspecial;
 
-        /* Dois contrutores caso nao seja necessarios inserir a tabela de simbolos aninhada. */
+        /* Tres contrutores caso nao seja necessarios inserir a tabela de simbolos aninhada ou o TipoEspecial(tipo de retorno da funcao ou String do TIPO do registro). */
         public EntradaTabelaDeSimbolos(String nome, TabelaDeSimbolos.TipoLaIdentificador tipoIdentificador, TabelaDeSimbolos.TipoLaVariavel tipoVariavel, TabelaDeSimbolos argsRegFunc) {
             this.nome = nome;
             this.tipoVariavel = tipoVariavel;
             this.tipoIdentificador = tipoIdentificador;
             this.argsRegFunc = argsRegFunc;
+        }
+        
+        public EntradaTabelaDeSimbolos(String nome, TabelaDeSimbolos.TipoLaIdentificador tipoIdentificador, TabelaDeSimbolos.TipoLaVariavel tipoVariavel, TabelaDeSimbolos argsRegFunc, String tipoEspecial) {
+            this.nome = nome;
+            this.tipoVariavel = tipoVariavel;
+            this.tipoIdentificador = tipoIdentificador;
+            this.argsRegFunc = argsRegFunc;
+            this.tipoEspecial = tipoEspecial;
         }
         
         public EntradaTabelaDeSimbolos(String nome, TabelaDeSimbolos.TipoLaIdentificador tipoIdentificador, TabelaDeSimbolos.TipoLaVariavel tipoVariavel) {
