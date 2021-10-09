@@ -147,13 +147,19 @@ public class LaGeradorUtils {
     // dois objetivos.
     public static TabelaDeSimbolos.TipoLaVariavel verificarTipo(StringBuilder saida, TabelaDeSimbolos tabela, LaSintaticoParser.ExpressaoContext ctx) {
         TabelaDeSimbolos.TipoLaVariavel ret = null;
+        int contador = 0;
         for (var tl : ctx.termo_logico()) {
-            TabelaDeSimbolos.TipoLaVariavel aux = verificarTipo(saida, tabela, tl); 
+            TabelaDeSimbolos.TipoLaVariavel aux = verificarTipo(saida, tabela, tl);
+            if(ctx.op_logico_1(contador) != null){
+                saida.append(" || ");
+            }
+            
             if (ret == null) {
                 ret = aux;
             } else if (!verificarTipo(ret,aux)) {
                 ret = TabelaDeSimbolos.TipoLaVariavel.INVALIDO;
             }
+            contador++;
         }
 
         return ret;
@@ -161,13 +167,19 @@ public class LaGeradorUtils {
 
     public static TabelaDeSimbolos.TipoLaVariavel verificarTipo(StringBuilder saida, TabelaDeSimbolos tabela, LaSintaticoParser.Termo_logicoContext ctx){
         TabelaDeSimbolos.TipoLaVariavel ret = null;
+        int contador = 0;
         for(var fl : ctx.fator_logico()){
             TabelaDeSimbolos.TipoLaVariavel aux = verificarTipo(saida, tabela, fl);
+            if(ctx.op_logico_2(contador) != null){
+                saida.append(" && ");
+            }
+            
             if(ret == null){
                 ret = aux;
             }else if(!verificarTipo(ret,aux)){
                 ret = TabelaDeSimbolos.TipoLaVariavel.INVALIDO;
             }
+            contador++;
         }
         
         return ret;
@@ -202,10 +214,21 @@ public class LaGeradorUtils {
         else{ // Caso contrario checa os se os identificadores ja foram declarados e retorna o tipo logico.
             boolean lock = false; // estava repetindo o ">";
             for(var ea: ctx.exp_aritmetica()){
-                verificarTipo(saida, tabela, ea);
+                verificarTipo(saida, tabela, ea); //Estranho caso 8 inconsistente.
                 if(ctx.op_relacional() != null && !lock){ // Adiciona operadores "op1".
+                    //System.out.println(ctx.op_relacional().getText()); 
                     if(ctx.op_relacional().getText().equals(">"))
                         saida.append(">");
+                    if(ctx.op_relacional().getText().equals("="))
+                        saida.append("==");
+                    if(ctx.op_relacional().getText().equals("<>"))
+                        saida.append("!=");
+                    if(ctx.op_relacional().getText().equals("<"))
+                        saida.append("<");
+                    if(ctx.op_relacional().getText().equals("<="))
+                        saida.append("<=");
+                    if(ctx.op_relacional().getText().equals(">="))
+                        saida.append(">=");
                     lock = true;
                 }
             }

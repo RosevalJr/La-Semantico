@@ -29,6 +29,7 @@ public class LaGerador extends LaSintaticoBaseVisitor<Void>{
         saida.append("\n");
         
         // Aqui jaz codigo futuro ...
+        ctx.declaracoes().decl_local_global().forEach(dec -> visitDecl_local_global(dec));
         
         saida.append("\n");
         saida.append("int main(){\n");
@@ -36,6 +37,45 @@ public class LaGerador extends LaSintaticoBaseVisitor<Void>{
         ctx.corpo().cmd().forEach(cmd -> visitCmd(cmd));
         saida.append("    return 0;\n");
         saida.append("}\n");
+        return null;
+    }
+    
+    @Override
+    public Void visitDecl_local_global(LaSintaticoParser.Decl_local_globalContext ctx){
+        //'constante' IDENT ':' tipo_basico '=' valor_constante | 'tipo' IDENT ':' tipo
+        if(ctx.declaracao_local() != null){
+            if(ctx.declaracao_local().IDENT() != null){
+                String identificador = ctx.declaracao_local().IDENT().getText();
+                TabelaDeSimbolos escopoAtual = escoposAninhados.obterEscopoAtual();
+
+                // Caso seja declaracao de constante.
+                if(ctx.declaracao_local().tipo_basico() != null){ // 'constante' IDENT ':' tipo_basico '=' valor_constante 
+                    // Identificada e armazena na tabela de simbolos a declaração de constante.
+                    if(escopoAtual.existe(identificador))
+                        utils.adicionarErroSemantico(ctx.declaracao_local().IDENT().getSymbol(),"identificador " + identificador + " ja declarado anteriormente\n");
+                    else{
+                        String tipoDoConstante = ctx.declaracao_local().tipo_basico().getText();
+                        saida.append("#define " + identificador + " " + ctx.declaracao_local().valor_constante().getText());
+                        switch(tipoDoConstante){
+                            case "inteiro":
+                                escopoAtual.adicionar(identificador, TabelaDeSimbolos.TipoLaIdentificador.CONSTANTE, TabelaDeSimbolos.TipoLaVariavel.INTEIRO);
+                                break;
+                            case "literal":
+                                escopoAtual.adicionar(identificador, TabelaDeSimbolos.TipoLaIdentificador.CONSTANTE, TabelaDeSimbolos.TipoLaVariavel.LITERAL);
+                                break;
+                            case "real":
+                                escopoAtual.adicionar(identificador, TabelaDeSimbolos.TipoLaIdentificador.CONSTANTE, TabelaDeSimbolos.TipoLaVariavel.REAL);
+                                break;
+                            case "logico":
+                                escopoAtual.adicionar(identificador, TabelaDeSimbolos.TipoLaIdentificador.CONSTANTE, TabelaDeSimbolos.TipoLaVariavel.LOGICO);
+                                break;
+                            default: // Nunca chega
+                                break;
+                        }
+                    }
+                }
+            }
+        }
         return null;
     }
     
@@ -50,7 +90,7 @@ public class LaGerador extends LaSintaticoBaseVisitor<Void>{
             // Caso seja declaracao de constante.
             if(ctx.tipo_basico() != null){ // 'constante' IDENT ':' tipo_basico '=' valor_constante 
                 // Identificada e armazena na tabela de simbolos a declaração de constante.
-                if(escopoAtual.existe(identificador))
+                /*if(escopoAtual.existe(identificador))
                     utils.adicionarErroSemantico(ctx.IDENT().getSymbol(),"identificador " + identificador + " ja declarado anteriormente\n");
                 else{
                     String tipoDoConstante = ctx.tipo_basico().getText();
@@ -70,7 +110,7 @@ public class LaGerador extends LaSintaticoBaseVisitor<Void>{
                         default: // Nunca chega
                             break;
                     }
-                }
+                }*/
             } // Caso contrario e a declaracao de um tipo.
             else{ // 'tipo' IDENT ':' tipo 
                 // Aqui é realizado a declaração de um novo tipo, usado para declarar registros posteriormente.
@@ -382,6 +422,55 @@ public class LaGerador extends LaSintaticoBaseVisitor<Void>{
         if(ctx.getText().contains("senao")){
             saida.append("    else{\n");
             ctx.cmdElse.forEach(cmd -> visitCmd(cmd));
+            saida.append("    }\n");
+        }
+        
+        
+        return null;
+    }
+    
+    @Override 
+    public Void visitCmdCaso(LaSintaticoParser.CmdCasoContext ctx){
+        TabelaDeSimbolos escopoAtual = escoposAninhados.obterEscopoAtual();
+        StringBuilder bufferConteudoExpressao = new StringBuilder();
+        
+        saida.append("    switch(");
+        
+        utilsGerador.verificarTipo(bufferConteudoExpressao, escopoAtual, ctx.exp_aritmetica());
+        saida.append(bufferConteudoExpressao);
+        saida.append("){\n");
+        
+        // Selecao ...
+        for(var item: ctx.selecao().item_selecao()){
+            for(var num_intervalo: item.constantes().numero_intervalo()){
+                String comecoNum = "";
+                String finalNum = "";
+                
+                /* Definindo o intervalo ... */
+                if(num_intervalo.op_unarioPrimeiro != null)
+                    comecoNum += num_intervalo.op_unarioPrimeiro.getText();
+                comecoNum += num_intervalo.numeroPrimeiro.getText();
+                
+                if(num_intervalo.op_unariosSegundo != null)
+                    finalNum += num_intervalo.op_unariosSegundo.getText();
+                if(num_intervalo.numeroSegundo != null)
+                    finalNum += num_intervalo.numeroSegundo.getText();
+                
+                if(!finalNum.equals(""))
+                    for(int i = Integer. parseInt(comecoNum); i <= Integer. parseInt(finalNum); i++ )
+                        saida.append("case " + String.valueOf(i) + ":\n");
+                else
+                    saida.append("case " + comecoNum + ":\n");
+            }
+            
+            item.cmd().forEach(cmd -> visitCmd(cmd));
+            saida.append("break;\n");
+        }
+        //ctx.cmdIf.forEach(cmd -> visitCmd(cmd));
+        
+        if(ctx.getText().contains("senao")){
+            saida.append("    default:\n");
+            ctx.cmd().forEach(cmd -> visitCmd(cmd));
             saida.append("    }\n");
         }
         

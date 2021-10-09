@@ -162,7 +162,7 @@ item_selecao: constantes ':' (cmd)*;
 constantes: numero_intervalo (',' numero_intervalo)*;
 
 // Definicao da estrutura de um intervalo numerico
-numero_intervalo: (op_unario)? NUM_INT ('..' (op_unario)? NUM_INT)?;
+numero_intervalo: (op_unarioPrimeiro=op_unario)? numeroPrimeiro=NUM_INT ('..' (op_unariosSegundo=op_unario)? numeroSegundo=NUM_INT)?;
 
 //Definicao de operador unario
 op_unario: '-';
