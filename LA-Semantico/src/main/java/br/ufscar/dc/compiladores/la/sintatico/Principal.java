@@ -35,14 +35,24 @@ public class Principal {
             
             // Printa todos os erros semanticos encontrados.
             LaSemanticoUtils utils = new LaSemanticoUtils();
-            for(var s: utils.errosSemanticos){
-                myWriter.write(s);
+            if(!utils.errosSemanticos.isEmpty()){ // Caso ocorra erro semantico.
+                for(var s: utils.errosSemanticos){
+                    myWriter.write(s);
+                }
+                myWriter.write("Fim da compilacao\n");
+            }
+            else{ // Caso nenhum erro ocorra, gerar codigo intermediario em C.
+                LaGerador gerador = new LaGerador();
+                gerador.visitPrograma(arvore);
+                StringBuilder saida = gerador.getSaida();
+                myWriter.write(saida.toString());
             }
 
-        } catch (ParseCancellationException e) {
+        } catch (ParseCancellationException e) { // Caso ocorra erro lexico ou sintatico.
             myWriter.write(e.getMessage());
+            myWriter.write("Fim da compilacao\n");
         }
-        myWriter.write("Fim da compilacao\n");
+        
         myWriter.close();
     }
 

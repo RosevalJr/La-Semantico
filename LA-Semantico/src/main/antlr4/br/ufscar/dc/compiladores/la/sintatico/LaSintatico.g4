@@ -129,7 +129,7 @@ cmdLeia: 'leia' '(' ('^')? identificador (',' ('^')? identificador)* ')';
 cmdEscreva: 'escreva' '(' expressao (',' expressao)* ')';
 
 // Definicao da estrutura do comando 'se... entao'
-cmdSe: 'se'  expressao 'entao' (cmd)* ('senao' (cmd)*)? 'fim_se';
+cmdSe: 'se'  expressao 'entao' (cmdIf+=cmd)* ('senao' (cmdElse+=cmd)*)? 'fim_se';
 
 // Definicao da estrutura do comando 'caso'
 cmdCaso: 'caso' exp_aritmetica 'seja' selecao ('senao' (cmd)*)? 'fim_caso';
