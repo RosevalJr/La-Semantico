@@ -467,76 +467,72 @@ public class LaGerador extends LaSintaticoBaseVisitor<Void>{
             String identificador = ctx.IDENT().getText();
             TabelaDeSimbolos escopoAtual = escoposAninhados.obterEscopoAtual();
             
-            // Caso seja declaração de constante.
-            if(ctx.tipo_basico() != null){
-            } // Caso contrário e a declaração de um tipo.
-            else{ // 'tipo' IDENT ':' tipo  || Typedef.
-                // Aqui é realizado a declaração de um novo tipo, usado para declarar registros posteriormente.
-                if(escopoAtual.existe(identificador)) 
-                    utils.adicionarErroSemantico(ctx.IDENT().getSymbol(),"identificador " + identificador + " ja declarado anteriormente\n");
-                else{ // Caso o identificador ja nao esteja sendo usado!
-                    
-                    // Cria o novo tipo na tabela de símbolos, inserindo com uma tabela de símbolos aninhada
-                    TabelaDeSimbolos camposTipo = new TabelaDeSimbolos();
-                    escopoAtual.adicionar(identificador, TabelaDeSimbolos.TipoLaIdentificador.TIPO, null, camposTipo);
-                    
-                    saida.append("    typedef struct {\n");
-                    
-                    for(var variavel : ctx.tipo().registro().variavel()){
+            // Aqui é realizado a declaração de um novo tipo, usado para declarar registros posteriormente.
+            if(escopoAtual.existe(identificador)) 
+                utils.adicionarErroSemantico(ctx.IDENT().getSymbol(),"identificador " + identificador + " ja declarado anteriormente\n");
+            else{ // Caso o identificador já não esteja sendo usado!
 
-                        for(var ctxIdentVariavel: variavel.identificador()){ // Cada variavel tem um tipo
-                            
-                            String identificadorVariavel = ctxIdentVariavel.getText();
-                            
-                            // Não se pode repetir o nomes dos campos do registros
-                            if(camposTipo.existe(identificadorVariavel))
-                                utils.adicionarErroSemantico(ctxIdentVariavel.IDENT(0).getSymbol(),"identificador " + identificadorVariavel + " ja declarado anteriormente\n");
-                            else{
-                                // Pega o tipo da váriavel.
-                                String tipoDaVariavel = variavel.tipo().getText();
-                                
-                                switch(tipoDaVariavel){
-                                    case "inteiro":
-                                        camposTipo.adicionar(identificadorVariavel, TabelaDeSimbolos.TipoLaIdentificador.VARIAVEL, TabelaDeSimbolos.TipoLaVariavel.INTEIRO);
-                                        saida.append("        int " + identificadorVariavel + ";\n");
-                                        break;
-                                    case "literal":
-                                        camposTipo.adicionar(identificadorVariavel, TabelaDeSimbolos.TipoLaIdentificador.VARIAVEL, TabelaDeSimbolos.TipoLaVariavel.LITERAL);
-                                        saida.append("        char " + identificadorVariavel + "[80];\n");
-                                        break;
-                                    case "real":
-                                        camposTipo.adicionar(identificadorVariavel, TabelaDeSimbolos.TipoLaIdentificador.VARIAVEL, TabelaDeSimbolos.TipoLaVariavel.REAL);
-                                        saida.append("        float " + identificadorVariavel + ";\n");
-                                        break;
-                                    case "logico":
-                                        camposTipo.adicionar(identificadorVariavel, TabelaDeSimbolos.TipoLaIdentificador.VARIAVEL, TabelaDeSimbolos.TipoLaVariavel.LOGICO);
-                                        saida.append("        boolean " + identificadorVariavel + ";\n");
-                                        break;
-                                    case "^logico":
-                                        camposTipo.adicionar(identificadorVariavel, TabelaDeSimbolos.TipoLaIdentificador.VARIAVEL, TabelaDeSimbolos.TipoLaVariavel.PONT_LOG);
-                                        saida.append("        boolean* " + identificadorVariavel + ";\n");
-                                        break;
-                                    case "^real":
-                                        camposTipo.adicionar(identificadorVariavel, TabelaDeSimbolos.TipoLaIdentificador.VARIAVEL, TabelaDeSimbolos.TipoLaVariavel.PONT_REA);
-                                        saida.append("        float* " + identificadorVariavel + ";\n");
-                                        break;
-                                    case "^literal":
-                                        camposTipo.adicionar(identificadorVariavel, TabelaDeSimbolos.TipoLaIdentificador.VARIAVEL, TabelaDeSimbolos.TipoLaVariavel.PONT_LIT);
-                                        saida.append("        char* " + identificadorVariavel + "[80];\n");
-                                        break;
-                                    case "^inteiro":
-                                        camposTipo.adicionar(identificadorVariavel, TabelaDeSimbolos.TipoLaIdentificador.VARIAVEL, TabelaDeSimbolos.TipoLaVariavel.PONT_INT);
-                                        saida.append("        int* " + identificadorVariavel + ";\n");
-                                        break;                       
-                                    default: // Nao estou tratando se tiver usando um tipo declarado na criação de um novo tipo.
-                                        break;
-                                }
+                // Cria o novo tipo na tabela de símbolos, inserindo com uma tabela de símbolos aninhada
+                TabelaDeSimbolos camposTipo = new TabelaDeSimbolos();
+                escopoAtual.adicionar(identificador, TabelaDeSimbolos.TipoLaIdentificador.TIPO, null, camposTipo);
+
+                saida.append("    typedef struct {\n");
+
+                for(var variavel : ctx.tipo().registro().variavel()){
+
+                    for(var ctxIdentVariavel: variavel.identificador()){ // Cada variavel tem um tipo
+
+                        String identificadorVariavel = ctxIdentVariavel.getText();
+
+                        // Não se pode repetir o nomes dos campos do registros
+                        if(camposTipo.existe(identificadorVariavel))
+                            utils.adicionarErroSemantico(ctxIdentVariavel.IDENT(0).getSymbol(),"identificador " + identificadorVariavel + " ja declarado anteriormente\n");
+                        else{
+                            // Pega o tipo da váriavel.
+                            String tipoDaVariavel = variavel.tipo().getText();
+
+                            switch(tipoDaVariavel){
+                                case "inteiro":
+                                    camposTipo.adicionar(identificadorVariavel, TabelaDeSimbolos.TipoLaIdentificador.VARIAVEL, TabelaDeSimbolos.TipoLaVariavel.INTEIRO);
+                                    saida.append("        int " + identificadorVariavel + ";\n");
+                                    break;
+                                case "literal":
+                                    camposTipo.adicionar(identificadorVariavel, TabelaDeSimbolos.TipoLaIdentificador.VARIAVEL, TabelaDeSimbolos.TipoLaVariavel.LITERAL);
+                                    saida.append("        char " + identificadorVariavel + "[80];\n");
+                                    break;
+                                case "real":
+                                    camposTipo.adicionar(identificadorVariavel, TabelaDeSimbolos.TipoLaIdentificador.VARIAVEL, TabelaDeSimbolos.TipoLaVariavel.REAL);
+                                    saida.append("        float " + identificadorVariavel + ";\n");
+                                    break;
+                                case "logico":
+                                    camposTipo.adicionar(identificadorVariavel, TabelaDeSimbolos.TipoLaIdentificador.VARIAVEL, TabelaDeSimbolos.TipoLaVariavel.LOGICO);
+                                    saida.append("        boolean " + identificadorVariavel + ";\n");
+                                    break;
+                                case "^logico":
+                                    camposTipo.adicionar(identificadorVariavel, TabelaDeSimbolos.TipoLaIdentificador.VARIAVEL, TabelaDeSimbolos.TipoLaVariavel.PONT_LOG);
+                                    saida.append("        boolean* " + identificadorVariavel + ";\n");
+                                    break;
+                                case "^real":
+                                    camposTipo.adicionar(identificadorVariavel, TabelaDeSimbolos.TipoLaIdentificador.VARIAVEL, TabelaDeSimbolos.TipoLaVariavel.PONT_REA);
+                                    saida.append("        float* " + identificadorVariavel + ";\n");
+                                    break;
+                                case "^literal":
+                                    camposTipo.adicionar(identificadorVariavel, TabelaDeSimbolos.TipoLaIdentificador.VARIAVEL, TabelaDeSimbolos.TipoLaVariavel.PONT_LIT);
+                                    saida.append("        char* " + identificadorVariavel + "[80];\n");
+                                    break;
+                                case "^inteiro":
+                                    camposTipo.adicionar(identificadorVariavel, TabelaDeSimbolos.TipoLaIdentificador.VARIAVEL, TabelaDeSimbolos.TipoLaVariavel.PONT_INT);
+                                    saida.append("        int* " + identificadorVariavel + ";\n");
+                                    break;                       
+                                default: // Nao estou tratando se tiver usando um tipo declarado na criação de um novo tipo.
+                                    break;
                             }
                         }
                     }
-                    saida.append("    } " + identificador + ";\n");
                 }
+                saida.append("    } " + identificador + ";\n");
             }
+     
         } // Caso seja a declaração de uma "variavel"
         else{// 'declare' variavel 
             
