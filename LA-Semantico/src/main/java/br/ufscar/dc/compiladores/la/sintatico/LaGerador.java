@@ -216,12 +216,15 @@ public class LaGerador extends LaSintaticoBaseVisitor<Void>{
                                 break;
                             case "^real":
                                 escopoAtual.adicionar(identificadorVariavel, TabelaDeSimbolos.TipoLaIdentificador.VARIAVEL, TabelaDeSimbolos.TipoLaVariavel.PONT_REA);
+                                saida.append("    float* "+ identificadorVariavel + ";\n");
                                 break;
                             case "^literal":
                                 escopoAtual.adicionar(identificadorVariavel, TabelaDeSimbolos.TipoLaIdentificador.VARIAVEL, TabelaDeSimbolos.TipoLaVariavel.PONT_LIT);
+                                saida.append("    char* "+ identificadorVariavel + "[80];\n");
                                 break;
                             case "^inteiro":
                                 escopoAtual.adicionar(identificadorVariavel, TabelaDeSimbolos.TipoLaIdentificador.VARIAVEL, TabelaDeSimbolos.TipoLaVariavel.PONT_INT);
+                                saida.append("    int* "+ identificadorVariavel + ";\n");
                                 break;                       
                             default: // Se chegar aqui e um tipo nao basico!
                                 // Checa se o identificador tipo da variavel existe na tabela de simbolos, caso ele existe e seja um tipo esta sendo declarado um registro. 
@@ -392,11 +395,21 @@ public class LaGerador extends LaSintaticoBaseVisitor<Void>{
     public Void visitCmdAtribuicao(LaSintaticoParser.CmdAtribuicaoContext ctx){
         TabelaDeSimbolos escopoAtual = escoposAninhados.obterEscopoAtual();
         
+        String[] atribuicao = ctx.getText().split("<-");
         String nomeIdentEsq = ctx.identificador().getText();
-        saida.append("    " + nomeIdentEsq + " = ");
         
+        if(atribuicao[0].contains("^")){
+            saida.append("    *" + nomeIdentEsq + " = ");
+        }
+        else{
+            saida.append("    " + nomeIdentEsq + " = ");
+        }
+           
         StringBuilder bufferConteudoExpressao = new StringBuilder();
         
+        if(atribuicao[1].contains("&")){
+            saida.append("&");
+        }
         utilsGerador.verificarTipo(bufferConteudoExpressao, escopoAtual, ctx.expressao());
         
         saida.append(bufferConteudoExpressao + ";\n");
@@ -477,4 +490,83 @@ public class LaGerador extends LaSintaticoBaseVisitor<Void>{
         
         return null;
     }
+    
+    @Override
+    public Void visitCmdPara(LaSintaticoParser.CmdParaContext ctx){
+        TabelaDeSimbolos escopoAtual = escoposAninhados.obterEscopoAtual();
+        StringBuilder bufferConteudoExpressao = new StringBuilder();     
+        
+        saida.append("for(");
+        saida.append(ctx.IDENT().getText()); 
+        saida.append(" = ");
+        
+        utilsGerador.verificarTipo(bufferConteudoExpressao, escopoAtual, ctx.exp_aritmetica(0));
+        saida.append(bufferConteudoExpressao);
+        saida.append("; "); 
+        
+        saida.append(ctx.IDENT().getText()); 
+        saida.append(" <= ");
+        bufferConteudoExpressao = new StringBuilder(); // limpa o buffer
+        utilsGerador.verificarTipo(bufferConteudoExpressao, escopoAtual, ctx.exp_aritmetica(1));
+        saida.append(bufferConteudoExpressao);
+        saida.append("; "); 
+        saida.append(ctx.IDENT().getText()); 
+        saida.append("++){\n");
+        
+        ctx.cmd().forEach(cmd ->visitCmd(cmd));
+        saida.append("}\n"); 
+       
+        return null;
+    }
+    @Override
+    public Void visitCmdEnquanto(LaSintaticoParser.CmdEnquantoContext ctx){
+        TabelaDeSimbolos escopoAtual = escoposAninhados.obterEscopoAtual();
+        StringBuilder bufferConteudoExpressao = new StringBuilder();     
+        
+        saida.append("while(");
+        utilsGerador.verificarTipo(bufferConteudoExpressao, escopoAtual, ctx.expressao());
+        saida.append(bufferConteudoExpressao);
+        saida.append("){\n");
+        
+        ctx.cmd().forEach(cmd ->visitCmd(cmd));
+        saida.append("}\n");
+        
+        return null;
+    }
+    @Override
+    public Void visitCmdFaca(LaSintaticoParser.CmdFacaContext ctx){
+        TabelaDeSimbolos escopoAtual = escoposAninhados.obterEscopoAtual();
+        StringBuilder bufferConteudoExpressao = new StringBuilder();     
+        Boolean isFalse = false;
+        
+        saida.append("do{\n"); 
+        ctx.cmd().forEach(cmd ->visitCmd(cmd));
+        
+        saida.append("}while(");
+        
+        if(ctx.expressao().termo_logico(0).getText().contains("nao")){
+            isFalse = true;
+            saida.append("!(");
+        }
+        utilsGerador.verificarTipo(bufferConteudoExpressao, escopoAtual, ctx.expressao());
+        saida.append(bufferConteudoExpressao);
+        if(isFalse){
+            saida.append(")");
+        }
+        saida.append(");\n");
+       
+        return null;
+    }
+    @Override
+    public Void visitRegistro(LaSintaticoParser.RegistroContext ctx){
+        saida.append("struct {\n"); 
+        
+        /*ctx.variavel().forEach(var -> visitDeclaracao_local(var));
+        saida.append(";\n");
+        
+        saida.append("}");
+        */
+        return null;
+    }
+    
 }
