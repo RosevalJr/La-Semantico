@@ -39,7 +39,7 @@ public class LaGeradorUtils {
     public static TabelaDeSimbolos.TipoLaVariavel verificarTipo(StringBuilder saida, TabelaDeSimbolos tabela, LaSintaticoParser.IdentificadorContext ctx){
         String identificador = ctx.getText(); // Texto completo do identificador. EX: vinho.Preco | vinho[i] | vinho
         
-        // Tudo isso e feito por causa da existência de registros
+        // Tudo isso é feito por causa da existência de registros
         if(!identificador.contains("[") && !identificador.contains("]")){
             // Caso não tenha dimensão.
             String[] nomePartes = identificador.split("\\.");
@@ -54,7 +54,8 @@ public class LaGeradorUtils {
                 EntradaTabelaDeSimbolos possivelRegistro = tabela.verificar(nomePartes[0]);
                 if(possivelRegistro.tipoIdentificador == TabelaDeSimbolos.TipoLaIdentificador.REGISTRO && nomePartes.length > 1){
                     TabelaDeSimbolos camposRegistro = possivelRegistro.argsRegFunc;
-                    if(!camposRegistro.existe(nomePartes[1])){ // Caso não exista!
+                    if(!camposRegistro.existe(nomePartes[1])){ 
+                        // Caso não exista!
                         adicionarErroSemantico(ctx.IDENT(0).getSymbol(), "identificador " + identificador + " nao declarado\n");
                     }
                     else{ 
@@ -210,7 +211,8 @@ public class LaGeradorUtils {
     public static TabelaDeSimbolos.TipoLaVariavel verificarTipo(StringBuilder saida, TabelaDeSimbolos tabela, LaSintaticoParser.Parcela_logicaContext ctx){
         if(ctx.exp_relacional() != null)
             return verificarTipo(saida, tabela, ctx.exp_relacional());
-        else{ // (falso | verdadeiro)
+        else{ 
+            // (falso | verdadeiro)
             return TabelaDeSimbolos.TipoLaVariavel.LOGICO;
         }
     }
@@ -233,9 +235,8 @@ public class LaGeradorUtils {
             // Caso contrário checa os se os identificadores já foram declarados e retorna o tipo lógico.
             boolean lock = false; // estava repetindo o ">";
             for(var ea: ctx.exp_aritmetica()){
-                verificarTipo(saida, tabela, ea); //Estranho caso 8 inconsistente.
+                verificarTipo(saida, tabela, ea);
                 if(ctx.op_relacional() != null && !lock){ // Adiciona operadores "op1".
-                    //System.out.println(ctx.op_relacional().getText()); 
                     if(ctx.op_relacional().getText().equals(">"))
                         saida.append(">");
                     if(ctx.op_relacional().getText().equals("="))
@@ -326,7 +327,7 @@ public class LaGeradorUtils {
             return verificarTipo(saida, tabela, ctx.parcela_unario());
         }
         else{
-            // Caso contrário é uma parcela não unária.
+            // Caso contrário é uma parcela não-unária.
             return verificarTipo(saida, tabela, ctx.parcela_nao_unario());
         }
     }
@@ -381,12 +382,12 @@ public class LaGeradorUtils {
                         ret = TabelaDeSimbolos.TipoLaVariavel.PONT_INT;
                         break;                       
                     default: 
-                        // Se chegar aqui e um tipo não básico!
+                        // Se chegar aqui é um tipo não básico!
                         ret = TabelaDeSimbolos.TipoLaVariavel.REGISTRO;
                         break;
                 }
                 
-                /* Também necessário checar o número de parâmetros e seus tipos. */
+                // Também necessário checar o número de parâmetros e seus tipos.
                 String nomeFun = ctx.IDENT().getText();
                 EntradaTabelaDeSimbolos funProc = tabela.verificar(nomeFun);
                 
