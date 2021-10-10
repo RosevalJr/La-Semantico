@@ -1,5 +1,5 @@
 # La-Semantico
-Analisador léxico, sintático e semântico para a [linguagem LA (Linguagem Algorítmica)](https://docs.google.com/document/d/1ZuFtrLSeC-Fkh24oacKs5KBibHp_27CrFnQISZwHR2c/edit).
+Analisador léxico, sintático e semântico para a [linguagem LA (Linguagem Algorítmica)](https://docs.google.com/document/d/1ZuFtrLSeC-Fkh24oacKs5KBibHp_27CrFnQISZwHR2c/edit), além do gerador de código.
 
 ## Autores
 
