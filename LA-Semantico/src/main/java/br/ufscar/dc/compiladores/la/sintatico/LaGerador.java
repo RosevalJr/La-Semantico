@@ -488,7 +488,7 @@ public class LaGerador extends LaSintaticoBaseVisitor<Void>{
                             
                             String identificadorVariavel = ctxIdentVariavel.getText();
                             
-                            // Não pode repetir o nomes dos campos do registros ...
+                            // Não se pode repetir o nomes dos campos do registros
                             if(camposTipo.existe(identificadorVariavel))
                                 utils.adicionarErroSemantico(ctxIdentVariavel.IDENT(0).getSymbol(),"identificador " + identificadorVariavel + " ja declarado anteriormente\n");
                             else{
@@ -537,7 +537,7 @@ public class LaGerador extends LaSintaticoBaseVisitor<Void>{
                     saida.append("    } " + identificador + ";\n");
                 }
             }
-        } // Caso seja a declaracao de uma "variavel"
+        } // Caso seja a declaração de uma "variavel"
         else{// 'declare' variavel 
             
             // Caso nao seja uma declaracao de registro direta !
@@ -620,27 +620,29 @@ public class LaGerador extends LaSintaticoBaseVisitor<Void>{
                     }
                 }
             }
-            else{// caso seja feita a declaracao de um registro sem declarar o tipo antes !
-                // Neste caso nao sera criado um "tipo" antes para ser usado depois, todas as instancias do registro serao definidas aqui.
+            else{
+                // Caso seja feita a declaração de um registro sem declarar o tipo antes
+                // Neste caso nao sera criado um "tipo" antes para ser usado depois, todas as instâncias do registro serão definidas aqui.
                 saida.append("    struct {\n");
                 ArrayList<String> identsRegistros = new ArrayList<>(); // Armazenar os identificadores dos registros a serem declarados.
-                // Primeira é inserido na tabela de simbolos os identificadores dos registros.
+                // Primeiro, é inserido na tabela de símbolos os identificadores dos registros.
                 for(var ctxIdentReg: ctx.variavel().identificador()){
                     String nomeIdentificador = ctxIdentReg.getText();
                     
                     TabelaDeSimbolos escopoAtual = escoposAninhados.obterEscopoAtual();
                     
-                    if(escopoAtual.existe(nomeIdentificador)) // Identificador nao pode repetir.
+                    // Identificador não pode repetir.
+                    if(escopoAtual.existe(nomeIdentificador)) 
                         utils.adicionarErroSemantico(ctxIdentReg.IDENT(0).getSymbol(),"identificador " + nomeIdentificador + " ja declarado anteriormente\n");
                     else{
                         TabelaDeSimbolos campos = new TabelaDeSimbolos();
-                        escopoAtual.adicionar(nomeIdentificador, TabelaDeSimbolos.TipoLaIdentificador.REGISTRO, null, campos, null); // Neste caso nao tem o identificadorEspecial.
+                        escopoAtual.adicionar(nomeIdentificador, TabelaDeSimbolos.TipoLaIdentificador.REGISTRO, null, campos, null); // Neste caso não tem o identificadorEspecial.
                         identsRegistros.add(nomeIdentificador); //  Guardando todos os identificadores dos registros que foram declarados.
                     }
                 }
                 
                 boolean lock = false;
-                // Agora sera identificado cada campo dos registros e inserido na tabela de simbolos aninhada da declaracao do identificador do registro.
+                // Agora será identificado cada campo dos registros e inserido na tabela de símbolos aninhada da declaração do identificador do registro.
                 for(var ctxVariavelRegistro: ctx.variavel().tipo().registro().variavel()){ // Cada "campo" dos registros tem um tipo.
                     for(var ctxVariavelRegistroIdent: ctxVariavelRegistro.identificador()){
                         lock = false;
@@ -652,7 +654,7 @@ public class LaGerador extends LaSintaticoBaseVisitor<Void>{
                             EntradaTabelaDeSimbolos entrada = escopoAtual.verificar(identRegistro);
                             TabelaDeSimbolos camposRegistro = entrada.argsRegFunc;
                             
-                           if(camposRegistro.existe(nomeCampoRegistro))// Nao pode repetir o identificador dentro da declaração dos registros.
+                           if(camposRegistro.existe(nomeCampoRegistro))// Não se pode repetir o identificador dentro da declaração dos registros.
                                utils.adicionarErroSemantico(ctxVariavelRegistroIdent.IDENT(0).getSymbol(),"identificador " + nomeCampoRegistro + " ja declarado anteriormente\n");
                            else{ // Checa que tipo é a variavel.
                                String tipoDaVariavel = ctxVariavelRegistro.tipo().getText();
@@ -694,9 +696,9 @@ public class LaGerador extends LaSintaticoBaseVisitor<Void>{
                                         if(!lock)
                                            saida.append("    int* "+ nomeCampoRegistro + ";\n");
                                        break;                       
-                                   default: // Se chegar aqui e um tipo nao basico.
-                                       // Nao checo se esta sendo usado um tipo criado antes "registro dentro de registro".
-                                       if(!escopoAtual.existe(tipoDaVariavel)){ // Caso o tipo nao exista mesmo, entao e um tipo nao declarado!
+                                   default: // Se chegar aqui e um tipo não básico.
+                                       // Não é efetuada a checagem se esta sendo usado um tipo criado antes "registro dentro de registro".
+                                       if(!escopoAtual.existe(tipoDaVariavel)){ // Caso o tipo não exista mesmo, entao é um tipo não declarado
                                            utils.adicionarErroSemantico(ctxVariavelRegistroIdent.IDENT(0).getSymbol(), "tipo " + tipoDaVariavel + " nao declarado\n"); // Aqui esta errado !
                                            escopoAtual.adicionar(nomeCampoRegistro, TabelaDeSimbolos.TipoLaIdentificador.VARIAVEL, TabelaDeSimbolos.TipoLaVariavel.INVALIDO);
                                        }
@@ -719,7 +721,8 @@ public class LaGerador extends LaSintaticoBaseVisitor<Void>{
             }
         }
         
-        return null; // visita os filhos.
+        // Após isso, visita os filhos.
+        return null; 
     }
     
     @Override 
@@ -854,13 +857,13 @@ public class LaGerador extends LaSintaticoBaseVisitor<Void>{
         saida.append(bufferConteudoExpressao);
         saida.append("){\n");
         
-        // Selecao ...
+        // Seleção
         for(var item: ctx.selecao().item_selecao()){
             for(var num_intervalo: item.constantes().numero_intervalo()){
                 String comecoNum = "";
                 String finalNum = "";
                 
-                /* Definindo o intervalo ... */
+                // Definindo o intervalo
                 if(num_intervalo.op_unarioPrimeiro != null)
                     comecoNum += num_intervalo.op_unarioPrimeiro.getText();
                 comecoNum += num_intervalo.numeroPrimeiro.getText();
@@ -880,7 +883,6 @@ public class LaGerador extends LaSintaticoBaseVisitor<Void>{
             item.cmd().forEach(cmd -> visitCmd(cmd));
             saida.append("break;\n");
         }
-        //ctx.cmdIf.forEach(cmd -> visitCmd(cmd));
         
         if(ctx.getText().contains("senao")){
             saida.append("    default:\n");
@@ -907,7 +909,8 @@ public class LaGerador extends LaSintaticoBaseVisitor<Void>{
         
         saida.append(ctx.IDENT().getText()); 
         saida.append(" <= ");
-        bufferConteudoExpressao = new StringBuilder(); // limpa o buffer
+        // Limpa o buffer
+        bufferConteudoExpressao = new StringBuilder(); 
         utilsGerador.verificarTipo(bufferConteudoExpressao, escopoAtual, ctx.exp_aritmetica(1));
         saida.append(bufferConteudoExpressao);
         saida.append("; "); 
@@ -967,7 +970,6 @@ public class LaGerador extends LaSintaticoBaseVisitor<Void>{
         
         utilsGerador.verificarTipo(bufferConteudoExpressao, escopoAtual, ctx.expressao());
         saida.append("    return " + bufferConteudoExpressao + ";\n");
-        //saida.append("}\n");
         return null;
     }
     
