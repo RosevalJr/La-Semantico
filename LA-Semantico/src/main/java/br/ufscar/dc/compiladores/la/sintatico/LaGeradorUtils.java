@@ -57,22 +57,38 @@ public class LaGeradorUtils {
                     }
                     else{ // Entao vinho.preco existe.
                         EntradaTabelaDeSimbolos entradaRegistro = camposRegistro.verificar(nomePartes[1]); // Acesso o tipo de vinho.preco
-                        if(entradaRegistro.tipoVariavel == TabelaDeSimbolos.TipoLaVariavel.INTEIRO)
+                        if(entradaRegistro.tipoVariavel == TabelaDeSimbolos.TipoLaVariavel.INTEIRO){
+                            saida.append(identificador);
                             return TabelaDeSimbolos.TipoLaVariavel.INTEIRO; 
-                        if(entradaRegistro.tipoVariavel == TabelaDeSimbolos.TipoLaVariavel.LITERAL)
+                        }
+                        if(entradaRegistro.tipoVariavel == TabelaDeSimbolos.TipoLaVariavel.LITERAL){
+                            saida.append(identificador);
                             return TabelaDeSimbolos.TipoLaVariavel.LITERAL;
-                        if(entradaRegistro.tipoVariavel == TabelaDeSimbolos.TipoLaVariavel.REAL)
+                        }
+                        if(entradaRegistro.tipoVariavel == TabelaDeSimbolos.TipoLaVariavel.REAL){
+                            saida.append(identificador);
                             return TabelaDeSimbolos.TipoLaVariavel.REAL;
-                        if(entradaRegistro.tipoVariavel == TabelaDeSimbolos.TipoLaVariavel.LOGICO)
+                        }
+                        if(entradaRegistro.tipoVariavel == TabelaDeSimbolos.TipoLaVariavel.LOGICO){
+                            saida.append(identificador);
                             return TabelaDeSimbolos.TipoLaVariavel.LOGICO;
-                        if(entradaRegistro.tipoVariavel == TabelaDeSimbolos.TipoLaVariavel.PONT_INT)
+                        }
+                        if(entradaRegistro.tipoVariavel == TabelaDeSimbolos.TipoLaVariavel.PONT_INT){
+                            saida.append(identificador);
                             return TabelaDeSimbolos.TipoLaVariavel.PONT_INT; 
-                        if(entradaRegistro.tipoVariavel == TabelaDeSimbolos.TipoLaVariavel.PONT_LIT)
+                        }
+                        if(entradaRegistro.tipoVariavel == TabelaDeSimbolos.TipoLaVariavel.PONT_LIT){
+                            saida.append(identificador);
                             return TabelaDeSimbolos.TipoLaVariavel.PONT_LIT;
-                        if(entradaRegistro.tipoVariavel == TabelaDeSimbolos.TipoLaVariavel.PONT_REA)
+                        }
+                        if(entradaRegistro.tipoVariavel == TabelaDeSimbolos.TipoLaVariavel.PONT_REA){
+                            saida.append(identificador);
                             return TabelaDeSimbolos.TipoLaVariavel.PONT_REA;
-                        if(entradaRegistro.tipoVariavel == TabelaDeSimbolos.TipoLaVariavel.PONT_LOG)
+                        }
+                        if(entradaRegistro.tipoVariavel == TabelaDeSimbolos.TipoLaVariavel.PONT_LOG){
+                            saida.append(identificador);
                             return TabelaDeSimbolos.TipoLaVariavel.PONT_LOG;
+                        }
                     }       
                 }
 
@@ -113,16 +129,13 @@ public class LaGeradorUtils {
             for(var identCtx: ctx.IDENT()) // Ignoramos a dimensao
                 identificadorSemDimensao += identCtx.getText();
             
-            // Verifica se as expressoes usadas dentro da dimensao usam variaveis ja declaradas.
-            for(var xp: ctx.dimensao().exp_aritmetica()) 
-                verificarTipo(saida, tabela, xp); // So pode ser inteiro, mas nao precisa checar!
-            
             // Verifica se o primeiro identificador ja foi declarado tipo: "vinho[0]", checa se vinho ja foi declarado.
             if(!tabela.existe(identificadorSemDimensao)){
                 adicionarErroSemantico(ctx.IDENT(0).getSymbol(), "identificador " + identificadorSemDimensao + " nao declarado\n");
             }
             else{
                 EntradaTabelaDeSimbolos ident = tabela.verificar(identificadorSemDimensao);
+                saida.append(ctx.getText());
                 if(ident.tipoVariavel == TabelaDeSimbolos.TipoLaVariavel.INTEIRO)
                     return TabelaDeSimbolos.TipoLaVariavel.INTEIRO; 
                 if(ident.tipoVariavel == TabelaDeSimbolos.TipoLaVariavel.LITERAL)
@@ -263,28 +276,39 @@ public class LaGeradorUtils {
     
     public static TabelaDeSimbolos.TipoLaVariavel verificarTipo(StringBuilder saida, TabelaDeSimbolos tabela, LaSintaticoParser.TermoContext ctx) {
         TabelaDeSimbolos.TipoLaVariavel ret = null;
-
+        int contador = 0;
         for (var fa : ctx.fator()) {
             TabelaDeSimbolos.TipoLaVariavel aux = verificarTipo(saida, tabela, fa);
+            if(ctx.op2(contador) != null){ // Adiciona operadores "op2".
+                if(ctx.op2(contador).getText().equals("*"))
+                    saida.append("*");
+                else    
+                    saida.append("/");
+            }
             if (ret == null) {
                 ret = aux;
             } else if (!verificarTipo(ret,aux)) {
                 ret = TabelaDeSimbolos.TipoLaVariavel.INVALIDO;
             }
+            contador++;
         }
         return ret;
     }
     
     public static TabelaDeSimbolos.TipoLaVariavel verificarTipo(StringBuilder saida, TabelaDeSimbolos tabela, LaSintaticoParser.FatorContext ctx) {
         TabelaDeSimbolos.TipoLaVariavel ret = null;
-
+        int contador = 0;
         for (var pa : ctx.parcela()) {
             TabelaDeSimbolos.TipoLaVariavel aux = verificarTipo(saida, tabela, pa);
+            if(ctx.op3(contador) != null){ // Adiciona operadores "op2".
+                saida.append("%");
+            }
             if (ret == null) {
                 ret = aux;
             } else if (!verificarTipo(ret,aux)) {
                 ret = TabelaDeSimbolos.TipoLaVariavel.INVALIDO;
             }
+            contador++;
         }
         return ret;
     }
@@ -301,7 +325,7 @@ public class LaGeradorUtils {
     
     // Aqui tenho que fazer para parcelaUnaria e parcelaUnaria.
     public static TabelaDeSimbolos.TipoLaVariavel verificarTipo(StringBuilder saida, TabelaDeSimbolos tabela, LaSintaticoParser.Parcela_unarioContext ctx) {
-        TabelaDeSimbolos.TipoLaVariavel ret = null;;
+        TabelaDeSimbolos.TipoLaVariavel ret = null;
                 
         if (ctx.NUM_INT() != null){
             saida.append(ctx.NUM_INT().getText());
@@ -317,15 +341,6 @@ public class LaGeradorUtils {
                 adicionarErroSemantico(ctx.identificador().IDENT(0).getSymbol(), "identificador " + ctx.IDENT().getText() + " nao declarado\n");
             }
             
-            // Checa se todos os identificadores foram declarados.
-            for(var exp: ctx.expressao()){
-                TabelaDeSimbolos.TipoLaVariavel aux = verificarTipo(saida, tabela, exp);
-                if (ret == null) {
-                    ret = aux;
-                } else if (!verificarTipo(ret,aux)) {
-                    ret = TabelaDeSimbolos.TipoLaVariavel.INVALIDO;
-                }
-            }
             
             // O tipo de retorno da chamada é o tipo de retorno da funcao.
             if(tabela.existe(ctx.IDENT().getText())){
@@ -364,16 +379,19 @@ public class LaGeradorUtils {
                 String nomeFun = ctx.IDENT().getText();
                 EntradaTabelaDeSimbolos funProc = tabela.verificar(nomeFun);
                 
-                // Estrutura para armazenar os tipos de todos os parametros da chamada.
-                ArrayList<TabelaDeSimbolos.TipoLaVariavel> tiposParametros = new ArrayList<>();
+                saida.append(nomeFun + "(");
                 
+                boolean primeiro = true;
                 for(var exp: ctx.expressao()){
-                    tiposParametros.add(verificarTipo(saida, tabela, exp)); // Adiciona todos os tipos dos parametros no ArrayList.
+                    verificarTipo(saida, tabela, exp); // Adiciona todos os tipos dos parametros no ArrayList.
+                    if(!primeiro)
+                        saida.append(",");
+                    else
+                        primeiro = false;
                 }
                 
-                // Caso o numero de parametros esteja diferente, ou os tipos nao batam, deve ser apontado um erro!
-                if(!funProc.argsRegFunc.tipoValido(tiposParametros))
-                    adicionarErroSemantico(ctx.IDENT().getSymbol(), "incompatibilidade de parametros na chamada de " + nomeFun + "\n");
+                saida.append(")");
+                
                 
             }
             

@@ -1,24 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define teste 8
+
 int main(){
-    switch(teste){
-case 0:
-case 1:
-case 2:
-case 3:
-case 4:
-case 5:
-case 6:
-case 7:
-    printf("ERRO");
-break;
-case 8:
-    printf("OK");
-break;
-    default:
-    printf("ERRO");
-    }
+    int vetor[5];
+    int i;
+for(i = 0; i <= 4; i++){
+    vetor[i] = i+1;
+}
+    printf("%d",vetor[0]);
     return 0;
 }
