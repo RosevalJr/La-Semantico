@@ -1,7 +1,5 @@
 package br.ufscar.dc.compiladores.la.sintatico;
 
-//import java.io.FileWriter;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,31 +8,38 @@ public class LaGerador extends LaSintaticoBaseVisitor<Void>{
     StringBuilder saida;
     TabelaDeSimbolos tabela;
     
-    Escopos escoposAninhados = new Escopos(); // Inicializa o escopo global.
-    LaSemanticoUtils utils = new LaSemanticoUtils(); // Verificador de tipos e modulos que auxiliam na analise semantica.
+    // Inicialização do escopo global.
+    Escopos escoposAninhados = new Escopos(); 
+    // Verificador de tipos e modulos que auxiliam na análise semântica.
+    LaSemanticoUtils utils = new LaSemanticoUtils();
+    //Instanciação do objeto responsável pelos utilitários da geração de código
+    //intermediário
     LaGeradorUtils utilsGerador = new LaGeradorUtils();
     
+    //Classe LaGerador que contém a saída e a tabela de símbolos
     public LaGerador(){
         saida = new StringBuilder();
         this.tabela = new TabelaDeSimbolos();
     }
-    
+    //Getter da saída, que utiliza um StringBuilder
     public StringBuilder getSaida(){
         return this.saida;
     }
-    /* Override do visitPrograma, utilizado para checar se o cmdRetorne esta sendo usado, onde nao deve ser usado. */
+    //Override do visitPrograma, utilizado para checar se o cmdRetorne está
+    //sendo usado onde não deve ser usado.
     @Override
     public Void visitPrograma(LaSintaticoParser.ProgramaContext ctx) { 
         saida.append("#include <stdio.h>\n");
         saida.append("#include <stdlib.h>\n");
         saida.append("\n");
         
-        // Aqui jaz codigo futuro ...
         ctx.declaracoes().decl_local_global().forEach(dec -> visitDecl_local_global(dec));
         
-        // Para cada funcao ou reigstro que aparece executa ela e seu cmd. dentro da instanciação da funcao ou precedimento.
+        // Para cada função ou reigstro que aparece executa ela e seu comando,
+        // dentro da instanciação da função ou procedimento.
         
-        for(var decLocGlo: ctx.declaracoes().decl_local_global()){ // Para cada funcao e procedimento.
+        // Para cada função e procedimento.
+        for(var decLocGlo: ctx.declaracoes().decl_local_global()){ 
             if(decLocGlo.declaracao_global() != null){
                 visitDeclaracao_global(decLocGlo.declaracao_global());
                 decLocGlo.declaracao_global().cmd().forEach(cmd -> visitCmd(cmd));
@@ -44,7 +49,8 @@ public class LaGerador extends LaSintaticoBaseVisitor<Void>{
         
         List<TabelaDeSimbolos> escopos = escoposAninhados.percorrerEscoposAninhados();
         if(escopos.size() > 1){
-                escoposAninhados.abandonarEscopo(); // Tira o escopo da funcao ou precedimento anteriores.
+                // Retirando o escopo da função ou procedimento anteriores.
+                escoposAninhados.abandonarEscopo();
         }
         
         saida.append("\n");
@@ -64,9 +70,10 @@ public class LaGerador extends LaSintaticoBaseVisitor<Void>{
                 String identificador = ctx.declaracao_local().IDENT().getText();
                 TabelaDeSimbolos escopoAtual = escoposAninhados.obterEscopoAtual();
 
-                // Caso seja declaracao de constante.
-                if(ctx.declaracao_local().tipo_basico() != null){ // 'constante' IDENT ':' tipo_basico '=' valor_constante 
-                    // Identificada e armazena na tabela de simbolos a declaração de constante.
+                // Caso seja declaração de constante.
+                // 'constante' IDENT ':' tipo_basico '=' valor_constante
+                if(ctx.declaracao_local().tipo_basico() != null){  
+                    // Identificada e armazena na tabela de símbolos a declaração de constante.
                     if(escopoAtual.existe(identificador))
                         utils.adicionarErroSemantico(ctx.declaracao_local().IDENT().getSymbol(),"identificador " + identificador + " ja declarado anteriormente\n");
                     else{
@@ -95,45 +102,50 @@ public class LaGerador extends LaSintaticoBaseVisitor<Void>{
         return null;
     }
     
-    /* Override do visitDeclaracao_global para realizar a detecção de procedimentos e funçoes,
-     * armazenado seu identificador na tabela de simbolos dos escopoGlobal. Tambem é inserido
-     * o escopo da função e precedimento na pilha de escopos, porém essa pilha nunca tera um tamanho
-     * maior que 2, tendo normalmente, o escopo global no fundo da pilha e o escopo da funcao ou precedimento
-     * anteriormente declarada, quando uma nova funcao ou procedimento for declarada, o escopo anterior é
+    /* Override do visitDeclaracao_global para realizar a detecção de procedimentos e funções,
+     * armazenado seu identificador na tabela de símbolos dos escopoGlobal. Também é inserido
+     * o escopo da função e procedimento na pilha de escopos, porém essa pilha nunca terá um tamanho
+     * maior que 2, tendo normalmente, o escopo global no fundo da pilha e o escopo da função ou procedimento
+     * anteriormente declarada, quando uma nova função ou procedimento for declarada, o escopo anterior é
      * retirado da pilha. Antes de entrar no corpo do programa, é mantido apenas o escopo global.*/
     @Override 
     public Void visitDeclaracao_global(LaSintaticoParser.Declaracao_globalContext ctx){
-        // Pega identificador da funcao ou procedimento.
+        // Usando getter do identificador da função ou procedimento.
         String identificador = ctx.IDENT().getText();
         
         // Retorna lista de escopos (tamanho nunca maior que 2), retira o escopo no topo
         // caso tenha 2 escopos na pilha.
         List<TabelaDeSimbolos> escopos = escoposAninhados.percorrerEscoposAninhados();
         if(escopos.size() > 1){
-                escoposAninhados.abandonarEscopo(); // Tira o escopo da funcao ou precedimento anteriores.
+                // Remoção do escopo da função ou procedimento anteriores.
+                escoposAninhados.abandonarEscopo();
         }
         
         TabelaDeSimbolos escopoGlobal = escoposAninhados.obterEscopoAtual(); // Pega o escopo global.
         
         // Caso seja uma função
         if(ctx.tipo_estendido() != null){ 
-            // Cria o escopo da funcao e coloca na pilha.
+            // Criação do escopo da função e adição na pilha.
             escoposAninhados.criarNovoEscopo();
             TabelaDeSimbolos escopoDaFuncao = escoposAninhados.obterEscopoAtual();
-            // Coloca o apontador para o escopo global no escopo da funcao para acessar tipos ja declarados.
+            // Adição do apontador para o escopo global no escopo da função para
+            // acessar tipos já declarados.
             escopoDaFuncao.setGlobao(escopoGlobal);
             
-            if(escopoGlobal.existe(identificador)) // Identificador da funcao ja declarado no escopo global? 
+            // Identificador da função já declarado no escopo global
+            if(escopoGlobal.existe(identificador)) 
                 utils.adicionarErroSemantico(ctx.IDENT().getSymbol(),"identificador " + identificador + " ja declarado anteriormente\n");
             else{
                 String tipoRetorno = ctx.tipo_estendido().getText();
-                // Cria o novo tipo na tabela de simbolos, inserindo com uma tabela de simbolos aninhada.
-                // Essa parametros sera usada para armazenar os parametros da funcao.
+                // Cria o novo tipo na tabela de símbolos, inserindo com uma
+                // tabela de símbolos aninhada.
+                // Esse "parametros" será usado para armazenar os parâmetros da função.
                 TabelaDeSimbolos parametros = new TabelaDeSimbolos();
-                // Adiciona identificador da funcao no escopo global.
+                // Adiciona identificador da função no escopo global.
                 escopoGlobal.adicionar(identificador, TabelaDeSimbolos.TipoLaIdentificador.FUNCAO, null, parametros, tipoRetorno);
                 
-                switch(tipoRetorno){ // Sempre insere no escopo da funcao, e na tabela de simbolos que armazena os parametros da funcao.
+                // Sempre insere no escopo da função, e na tabela de símbolos que armazena os parâmetros da função.
+                switch(tipoRetorno){
                     case "inteiro":
                         saida.append("int " + identificador + "(");
                         break;
@@ -163,18 +175,21 @@ public class LaGerador extends LaSintaticoBaseVisitor<Void>{
                 }
                 
                 boolean primeiro = true;
-                for(var parametro: ctx.parametros().parametro()){ // Cada parametro é um conjunto de variaveis com um tipo.
-                    String tipoDaVariavel = parametro.tipo_estendido().getText(); // Tipo pode ser um tipo especial definido
+                // Cada parâmetro é um conjunto de variáveis com um tipo.
+                for(var parametro: ctx.parametros().parametro()){ 
+                    // O Tipo pode ser um tipo especial definido
+                    String tipoDaVariavel = parametro.tipo_estendido().getText(); 
                     
                     for(var ident: parametro.identificador()){ // Escopo usado aqui é a variavel "parametros".                    
                         String nomeParametro = ident.getText();
                         
-                        
-                        if(escopoDaFuncao.existe(nomeParametro)) // Caso o identificador da variavel ja esteja sendo usado.
+                        // Caso o identificador da variável já esteja sendo usado.
+                        if(escopoDaFuncao.existe(nomeParametro))
                             utils.adicionarErroSemantico(ident.IDENT(0).getSymbol(),"identificador " + nomeParametro + " ja declarado anteriormente\n");
-                        else{ // Caso contrario pode ser declarado.
-
-                            switch(tipoDaVariavel){ // Sempre insere no escopo da funcao, e na tabela de simbolos que armazena os parametros da funcao.
+                        // Caso contrário pode ser declarado.
+                        else{
+                            // Sempre insere no escopo da função, e na tabela de símbolos que armazena os parâmetros da função.
+                            switch(tipoDaVariavel){ 
                                 case "inteiro":
                                     escopoDaFuncao.adicionar(nomeParametro, TabelaDeSimbolos.TipoLaIdentificador.VARIAVEL, TabelaDeSimbolos.TipoLaVariavel.INTEIRO);
                                     parametros.adicionar(nomeParametro, TabelaDeSimbolos.TipoLaIdentificador.VARIAVEL, TabelaDeSimbolos.TipoLaVariavel.INTEIRO);
@@ -255,13 +270,13 @@ public class LaGerador extends LaSintaticoBaseVisitor<Void>{
                                     else
                                         saida.append(",int* " + nomeParametro);
                                     break;                       
-                                default: // Se chegar aqui e um tipo nao basico!
-                                    // Checa se o identificador tipo da variavel existe na tabela de simbolos, caso ele existe e seja um tipo este sendo declarado um registro. 
+                                default: // Caso chegue aqui é um tipo não básico!
+                                    // Checa se o identificador tipo da variável existe na tabela de simbolos, caso ele existe e seja um tipo este sendo declarado um registro. 
                                     if(escopoGlobal.existe(tipoDaVariavel) && escopoGlobal.verificar(tipoDaVariavel).tipoIdentificador == TabelaDeSimbolos.TipoLaIdentificador.TIPO){
 
                                         if(escopoDaFuncao.existe(nomeParametro)) // Caso ja existe aponta erro.
                                             utils.adicionarErroSemantico(ident.IDENT(0).getSymbol(),"identificador " + nomeParametro + " ja declarado anteriormente\n");
-                                        else{ // Caso contrario o registro pode ser declarado.
+                                        else{ // Caso contrário o registro pode ser declarado.
 
                                             // Acessando a tabelaDeSimbolos aninhada interna ao TIPO, a fim de criar o registro com os "campos" corretos.
                                             EntradaTabelaDeSimbolos campos = escopoGlobal.verificar(tipoDaVariavel);
@@ -278,9 +293,9 @@ public class LaGerador extends LaSintaticoBaseVisitor<Void>{
                                         }
                                     }
 
-                                    if(!escopoGlobal.existe(tipoDaVariavel)){ // Caso o tipo nao exista mesmo, entao e um tipo nao declarado!
+                                    if(!escopoGlobal.existe(tipoDaVariavel)){ // Caso o tipo não exista mesmo, então é um tipo não declarado!
                                         utils.adicionarErroSemantico(ident.IDENT(0).getSymbol(), "tipo " + tipoDaVariavel + " nao declarado\n"); 
-                                        // Identificador é "declarado", porém com tipo INVALIDO.
+                                        // Identificador é "declarado", porém com tipo INVÁLIDO.
                                         escopoDaFuncao.adicionar(nomeParametro, TabelaDeSimbolos.TipoLaIdentificador.VARIAVEL, TabelaDeSimbolos.TipoLaVariavel.INVALIDO);
                                         parametros.adicionar(nomeParametro, TabelaDeSimbolos.TipoLaIdentificador.VARIAVEL, TabelaDeSimbolos.TipoLaVariavel.INVALIDO);
                                     }
@@ -292,32 +307,32 @@ public class LaGerador extends LaSintaticoBaseVisitor<Void>{
                 saida.append(") {\n");
             }
         }
-        else{ // Caso contrario é um procedimento
+        else{ // Caso contrário é um procedimento
             // Cria o escopo do procedimento e coloca na pilha.
             escoposAninhados.criarNovoEscopo();
             TabelaDeSimbolos escopoDaFuncao = escoposAninhados.obterEscopoAtual();
-            // Coloca o apontador para o escopo global no escopo do precedimento para acessar tipos ja declarados.
+            // Coloca o apontador para o escopo global no escopo do procedimento para acessar tipos já declarados.
             escopoDaFuncao.setGlobao(escopoGlobal);
             
             saida.append("void " + identificador + "(");
             
             boolean primeiro = true;
-            if(escopoGlobal.existe(identificador)) // Identificador do procedimento ja declarado no escopo global? 
+            if(escopoGlobal.existe(identificador)) // Identificador do procedimento já declarado no escopo global 
                 utils.adicionarErroSemantico(ctx.IDENT().getSymbol(),"identificador " + identificador + " ja declarado anteriormente\n");
             else{
-                // Cria o novo tipo na tabela de simbolos, inserindo com uma tabela de simbolos aninhada.
-                // Essa parametros sera usada para armazenar os parametros do procedimento.
+                // Cria o novo tipo na tabela de símbolos, inserindo com uma tabela de símbolos aninhada.
+                // Essa variável parametros sera usada para armazenar os parametros do procedimento.
                 TabelaDeSimbolos parametros = new TabelaDeSimbolos();
-                // Adiciona identificador do procedimento no escopo global. (PROCEDIMENTO NAO TEM RETORNO!)
+                // Adiciona identificador do procedimento no escopo global. (PROCEDIMENTO NÃO TEM RETORNO!)
                 escopoGlobal.adicionar(identificador, TabelaDeSimbolos.TipoLaIdentificador.PROCEDIMENTO, null, parametros);
                     
                 for(var parametro: ctx.parametros().parametro()){ // Cada parametro é um conjunto de variaveis com um tipo.
                     String tipoDaVariavel = parametro.tipo_estendido().getText(); // Tipo pode ser um tipo especial definido
                     
-                    for(var ident: parametro.identificador()){ // Escopo usado aqui é a variavel "parametros".
+                    for(var ident: parametro.identificador()){ // Escopo usado aqui é a variável "parametros".
                                              
                         String nomeParametro = ident.getText();
-                        if(escopoDaFuncao.existe(nomeParametro)) // Caso o identificador da variavel ja esteja sendo usada.
+                        if(escopoDaFuncao.existe(nomeParametro)) // Caso o identificador da variável já esteja sendo usada.
                             utils.adicionarErroSemantico(ident.IDENT(0).getSymbol(),"identificador " + nomeParametro + " ja declarado anteriormente\n");
                         else{ // Caso contrario pode ser declarado.
 
@@ -402,11 +417,11 @@ public class LaGerador extends LaSintaticoBaseVisitor<Void>{
                                     else
                                         saida.append(",int* " + nomeParametro);
                                     break;                       
-                                default: // Se chegar aqui e um tipo nao basico!
-                                    // Checa se o identificador tipo da variavel existe na tabela de simbolos, caso ele existe e seja um tipo este sendo declarado um registro. 
+                                default: // Se chegar aqui e um tipo não básico!
+                                    // Checa se o identificador tipo da variável existe na tabela de símbolos, caso ele existe e seja um tipo este sendo declarado um registro. 
                                     if(escopoGlobal.existe(tipoDaVariavel) && escopoGlobal.verificar(tipoDaVariavel).tipoIdentificador == TabelaDeSimbolos.TipoLaIdentificador.TIPO){
 
-                                        if(escopoDaFuncao.existe(nomeParametro)) // Caso ja existe aponta erro.
+                                        if(escopoDaFuncao.existe(nomeParametro)) // Caso já exista, aponta erro.
                                             utils.adicionarErroSemantico(ident.IDENT(0).getSymbol(),"identificador " + nomeParametro + " ja declarado anteriormente\n");
                                         else{ // Caso contrario o registro pode ser declarado.
 
@@ -452,39 +467,16 @@ public class LaGerador extends LaSintaticoBaseVisitor<Void>{
             String identificador = ctx.IDENT().getText();
             TabelaDeSimbolos escopoAtual = escoposAninhados.obterEscopoAtual();
             
-            // Caso seja declaracao de constante.
-            if(ctx.tipo_basico() != null){ // 'constante' IDENT ':' tipo_basico '=' valor_constante 
-                // Identificada e armazena na tabela de simbolos a declaração de constante.
-                /*if(escopoAtual.existe(identificador))
-                    utils.adicionarErroSemantico(ctx.IDENT().getSymbol(),"identificador " + identificador + " ja declarado anteriormente\n");
-                else{
-                    String tipoDoConstante = ctx.tipo_basico().getText();
-                    switch(tipoDoConstante){
-                        case "inteiro":
-                            escopoAtual.adicionar(identificador, TabelaDeSimbolos.TipoLaIdentificador.CONSTANTE, TabelaDeSimbolos.TipoLaVariavel.INTEIRO);
-                            break;
-                        case "literal":
-                            escopoAtual.adicionar(identificador, TabelaDeSimbolos.TipoLaIdentificador.CONSTANTE, TabelaDeSimbolos.TipoLaVariavel.LITERAL);
-                            break;
-                        case "real":
-                            escopoAtual.adicionar(identificador, TabelaDeSimbolos.TipoLaIdentificador.CONSTANTE, TabelaDeSimbolos.TipoLaVariavel.REAL);
-                            break;
-                        case "logico":
-                            escopoAtual.adicionar(identificador, TabelaDeSimbolos.TipoLaIdentificador.CONSTANTE, TabelaDeSimbolos.TipoLaVariavel.LOGICO);
-                            break;
-                        default: // Nunca chega
-                            break;
-                    }
-                }*/
-            } // Caso contrario e a declaracao de um tipo.
+            // Caso seja declaração de constante.
+            if(ctx.tipo_basico() != null){
+            } // Caso contrário e a declaração de um tipo.
             else{ // 'tipo' IDENT ':' tipo  || Typedef.
                 // Aqui é realizado a declaração de um novo tipo, usado para declarar registros posteriormente.
                 if(escopoAtual.existe(identificador)) 
                     utils.adicionarErroSemantico(ctx.IDENT().getSymbol(),"identificador " + identificador + " ja declarado anteriormente\n");
                 else{ // Caso o identificador ja nao esteja sendo usado!
                     
-                    // Cria o novo tipo na tabela de simbolos, inserindo com uma tabela de simbolos aninhada.
-                    // Essa parametros sera usada para armazenas as variaveis do tipo.
+                    // Cria o novo tipo na tabela de símbolos, inserindo com uma tabela de símbolos aninhada
                     TabelaDeSimbolos camposTipo = new TabelaDeSimbolos();
                     escopoAtual.adicionar(identificador, TabelaDeSimbolos.TipoLaIdentificador.TIPO, null, camposTipo);
                     
@@ -496,11 +488,11 @@ public class LaGerador extends LaSintaticoBaseVisitor<Void>{
                             
                             String identificadorVariavel = ctxIdentVariavel.getText();
                             
-                            // Nao pode repetir o nomes dos campos do registros ...
+                            // Não pode repetir o nomes dos campos do registros ...
                             if(camposTipo.existe(identificadorVariavel))
                                 utils.adicionarErroSemantico(ctxIdentVariavel.IDENT(0).getSymbol(),"identificador " + identificadorVariavel + " ja declarado anteriormente\n");
                             else{
-                                // Pega o tipo da variavel.
+                                // Pega o tipo da váriavel.
                                 String tipoDaVariavel = variavel.tipo().getText();
                                 
                                 switch(tipoDaVariavel){
