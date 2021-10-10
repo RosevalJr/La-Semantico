@@ -593,7 +593,7 @@ public class LaGerador extends LaSintaticoBaseVisitor<Void>{
                                 escopoAtual.adicionar(identificadorVariavel, TabelaDeSimbolos.TipoLaIdentificador.VARIAVEL, TabelaDeSimbolos.TipoLaVariavel.PONT_INT);
                                 saida.append("    int* "+ ctxIdentVariavel.getText() + ";\n");
                                 break;                       
-                            default: // Se chegar aqui e um tipo nao basico!
+                            default: // Se chegar aqui e um tipo nao básico!
                                 // Checa se o identificador tipo da variável existe na tabela de símbolos,
                                 // caso ele existe e seja um tipo está sendo declarado um registro. 
                                 if(escopoAtual.existe(tipoDaVariavel) && escopoAtual.verificar(tipoDaVariavel).tipoIdentificador == TabelaDeSimbolos.TipoLaIdentificador.TIPO){
