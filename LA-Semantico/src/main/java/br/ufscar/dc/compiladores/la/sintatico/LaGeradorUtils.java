@@ -17,7 +17,8 @@ public class LaGeradorUtils {
         errosSemanticos.add(String.format("Linha %d: %s", linha, mensagem));
     }
     
-    // Esse método checa os tipos de uma atribuição se são válidos ou não. tipo1 <- tipo2. Retornando true caso sejam válidos.
+    // Esse método checa os tipos de uma atribuição se são válidos ou não. tipo1 <- tipo2.
+    //Retornando true caso sejam válidos.
     public static boolean verificarTipo(TabelaDeSimbolos.TipoLaVariavel tipo1, TabelaDeSimbolos.TipoLaVariavel tipo2){
         if(tipo1 == tipo2)
             return true;
