@@ -479,8 +479,8 @@ public class LaGerador extends LaSintaticoBaseVisitor<Void>{
                 saida.append("    typedef struct {\n");
 
                 for(var variavel : ctx.tipo().registro().variavel()){
-
-                    for(var ctxIdentVariavel: variavel.identificador()){ // Cada variavel tem um tipo
+                    // Cada variável tem um tipo
+                    for(var ctxIdentVariavel: variavel.identificador()){ 
 
                         String identificadorVariavel = ctxIdentVariavel.getText();
 
@@ -539,7 +539,7 @@ public class LaGerador extends LaSintaticoBaseVisitor<Void>{
             // Caso nao seja uma declaracao de registro direta !
             if(ctx.variavel().tipo().registro() == null){
                 for(var ctxIdentVariavel: ctx.variavel().identificador()){ // Cada variavel tem um tipo.
-                    // Nao é necessario concatenar.
+                    // Não é necessário concatenar.
                     String identificadorVariavel = "";
 
                     for(var ident: ctxIdentVariavel.IDENT())
@@ -551,12 +551,14 @@ public class LaGerador extends LaSintaticoBaseVisitor<Void>{
                     //As expressões deve utilizar variáveis já declaradas! EX: valor[i]
                     if(ctxIdentVariavel.dimensao() != null)
                         for(var expDim: ctxIdentVariavel.dimensao().exp_aritmetica())
-                            utils.verificarTipo(escopoAtual, expDim); // VerificarTipo retorna tipo da expressao, mas tambem checa se identificadores ja foram declarados.
+                            // VerificarTipo retorna tipo da expressão, mas tambem checa se identificadores já foram declarados.
+                            utils.verificarTipo(escopoAtual, expDim);
                     
                      // Caso o identificador da variavel já esteja sendo usada.
                     if(escopoAtual.existe(identificadorVariavel))
                         utils.adicionarErroSemantico(ctxIdentVariavel.IDENT(0).getSymbol(),"identificador " + identificadorVariavel + " ja declarado anteriormente\n");
-                    else{ // Caso contrário pode ser declarado.
+                    // Caso contrário pode ser declarado.
+                    else{ 
                         
                         String tipoDaVariavel = ctx.variavel().tipo().getText();
                         
@@ -592,12 +594,14 @@ public class LaGerador extends LaSintaticoBaseVisitor<Void>{
                                 saida.append("    int* "+ ctxIdentVariavel.getText() + ";\n");
                                 break;                       
                             default: // Se chegar aqui e um tipo nao basico!
-                                // Checa se o identificador tipo da variavel existe na tabela de simbolos, caso ele existe e seja um tipo esta sendo declarado um registro. 
+                                // Checa se o identificador tipo da variável existe na tabela de símbolos,
+                                // caso ele existe e seja um tipo está sendo declarado um registro. 
                                 if(escopoAtual.existe(tipoDaVariavel) && escopoAtual.verificar(tipoDaVariavel).tipoIdentificador == TabelaDeSimbolos.TipoLaIdentificador.TIPO){
-                                    
-                                    if(escopoAtual.existe(identificadorVariavel)) // Caso a variavel ja existe aponta erro.
+                                    // Caso a variável ja existe, aponta erro.
+                                    if(escopoAtual.existe(identificadorVariavel)) 
                                         utils.adicionarErroSemantico(ctxIdentVariavel.IDENT(0).getSymbol(),"identificador " + identificadorVariavel + " ja declarado anteriormente\n");
-                                    else{ // Caso contrario o registro pode ser declarado.
+                                    // Caso contrário o registro pode ser declarado.
+                                    else{ 
                                         
                                         // Acessando a tabelaDeSimbolos aninhada interna ao TIPO, a fim de criar o registro com os "campos" corretos.
                                         EntradaTabelaDeSimbolos entrada = escopoAtual.verificar(tipoDaVariavel);
@@ -607,9 +611,10 @@ public class LaGerador extends LaSintaticoBaseVisitor<Void>{
                                     }
                                 }
                                 
-                                if(!escopoAtual.existe(tipoDaVariavel)){ // Caso o tipo nao exista mesmo, entao e um tipo nao declarado!
+                                // Caso o tipo nãoo exista mesmo, então é um tipo não declarado!
+                                if(!escopoAtual.existe(tipoDaVariavel)){ 
                                     utils.adicionarErroSemantico(ctxIdentVariavel.IDENT(0).getSymbol(), "tipo " + tipoDaVariavel + " nao declarado\n"); 
-                                    // Coloca a variavel na tabela de simbolos com tipo invalido.
+                                    // Coloca a variável na tabela de símbolos com tipo inválido.
                                     escopoAtual.adicionar(identificadorVariavel, TabelaDeSimbolos.TipoLaIdentificador.VARIAVEL, TabelaDeSimbolos.TipoLaVariavel.INVALIDO);
                                 }
                                 break;
@@ -619,7 +624,7 @@ public class LaGerador extends LaSintaticoBaseVisitor<Void>{
             }
             else{
                 // Caso seja feita a declaração de um registro sem declarar o tipo antes
-                // Neste caso nao sera criado um "tipo" antes para ser usado depois, todas as instâncias do registro serão definidas aqui.
+                // Neste caso não sera criado um "tipo" antes para ser usado depois, todas as instâncias do registro serão definidas aqui.
                 saida.append("    struct {\n");
                 ArrayList<String> identsRegistros = new ArrayList<>(); // Armazenar os identificadores dos registros a serem declarados.
                 // Primeiro, é inserido na tabela de símbolos os identificadores dos registros.
@@ -723,6 +728,7 @@ public class LaGerador extends LaSintaticoBaseVisitor<Void>{
         return null; 
     }
     
+    //Override do método visitCmdLeia
     @Override 
     public Void visitCmdLeia(LaSintaticoParser.CmdLeiaContext ctx){
         for(var identificador: ctx.identificador()){
@@ -744,6 +750,7 @@ public class LaGerador extends LaSintaticoBaseVisitor<Void>{
         return null;
     }
     
+    //Override do método visitCmdEscreva
     @Override 
     public Void visitCmdEscreva(LaSintaticoParser.CmdEscrevaContext ctx){
         TabelaDeSimbolos escopoAtual = escoposAninhados.obterEscopoAtual();
@@ -784,6 +791,7 @@ public class LaGerador extends LaSintaticoBaseVisitor<Void>{
         return null;
     }
     
+    //Override do método visitCmdAtribuicao
     @Override 
     public Void visitCmdAtribuicao(LaSintaticoParser.CmdAtribuicaoContext ctx){
         TabelaDeSimbolos escopoAtual = escoposAninhados.obterEscopoAtual();
@@ -819,6 +827,7 @@ public class LaGerador extends LaSintaticoBaseVisitor<Void>{
         return null;
     }
     
+    //Override do método visitCmdSe
     @Override 
     public Void visitCmdSe(LaSintaticoParser.CmdSeContext ctx){
         TabelaDeSimbolos escopoAtual = escoposAninhados.obterEscopoAtual();
@@ -844,6 +853,7 @@ public class LaGerador extends LaSintaticoBaseVisitor<Void>{
         return null;
     }
     
+    //Override do método visitCmdCaso
     @Override 
     public Void visitCmdCaso(LaSintaticoParser.CmdCasoContext ctx){
         TabelaDeSimbolos escopoAtual = escoposAninhados.obterEscopoAtual();
@@ -892,6 +902,7 @@ public class LaGerador extends LaSintaticoBaseVisitor<Void>{
         return null;
     }
     
+    //Override do método visitCmdPara
     @Override
     public Void visitCmdPara(LaSintaticoParser.CmdParaContext ctx){
         TabelaDeSimbolos escopoAtual = escoposAninhados.obterEscopoAtual();
@@ -920,6 +931,7 @@ public class LaGerador extends LaSintaticoBaseVisitor<Void>{
        
         return null;
     }
+    //Override do método visitCmdEnquanto
     @Override
     public Void visitCmdEnquanto(LaSintaticoParser.CmdEnquantoContext ctx){
         TabelaDeSimbolos escopoAtual = escoposAninhados.obterEscopoAtual();
@@ -936,6 +948,7 @@ public class LaGerador extends LaSintaticoBaseVisitor<Void>{
         return null;
     }
     
+    //Override do do método vistCmdFaca
     @Override
     public Void visitCmdFaca(LaSintaticoParser.CmdFacaContext ctx){
         TabelaDeSimbolos escopoAtual = escoposAninhados.obterEscopoAtual();
@@ -961,6 +974,7 @@ public class LaGerador extends LaSintaticoBaseVisitor<Void>{
         return null;
     }
     
+    //Override do do método vistCmdRetorne
     @Override
     public Void visitCmdRetorne(LaSintaticoParser.CmdRetorneContext ctx){
         TabelaDeSimbolos escopoAtual = escoposAninhados.obterEscopoAtual();
@@ -971,6 +985,7 @@ public class LaGerador extends LaSintaticoBaseVisitor<Void>{
         return null;
     }
     
+    //Override do do método vistCmdChamada
     @Override
     public Void visitCmdChamada(LaSintaticoParser.CmdChamadaContext ctx){
         saida.append("    " + ctx.getText() + ";\n");
