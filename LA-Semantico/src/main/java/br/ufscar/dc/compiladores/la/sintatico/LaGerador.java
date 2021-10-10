@@ -524,7 +524,7 @@ public class LaGerador extends LaSintaticoBaseVisitor<Void>{
                                     camposTipo.adicionar(identificadorVariavel, TabelaDeSimbolos.TipoLaIdentificador.VARIAVEL, TabelaDeSimbolos.TipoLaVariavel.PONT_INT);
                                     saida.append("        int* " + identificadorVariavel + ";\n");
                                     break;                       
-                                default: // Nao estou tratando se tiver usando um tipo declarado na criação de um novo tipo.
+                                default: // Não está sendo tratado o caso se tiver usando um tipo declarado na criação de um novo tipo.
                                     break;
                             }
                         }
@@ -547,15 +547,16 @@ public class LaGerador extends LaSintaticoBaseVisitor<Void>{
                     
                     TabelaDeSimbolos escopoAtual = escoposAninhados.obterEscopoAtual();
                     
-                    // Checa se tiver dimencao as expressoes deve utilizar variaveis ja declaradas! EX: valor[i]
+                    // Checa se tiver dimensão
+                    //As expressões deve utilizar variáveis já declaradas! EX: valor[i]
                     if(ctxIdentVariavel.dimensao() != null)
                         for(var expDim: ctxIdentVariavel.dimensao().exp_aritmetica())
                             utils.verificarTipo(escopoAtual, expDim); // VerificarTipo retorna tipo da expressao, mas tambem checa se identificadores ja foram declarados.
                     
-                     // Caso o identificador da variavel ja esteja sendo usada.
+                     // Caso o identificador da variavel já esteja sendo usada.
                     if(escopoAtual.existe(identificadorVariavel))
                         utils.adicionarErroSemantico(ctxIdentVariavel.IDENT(0).getSymbol(),"identificador " + identificadorVariavel + " ja declarado anteriormente\n");
-                    else{ // Caso contrario pode ser declarado.
+                    else{ // Caso contrário pode ser declarado.
                         
                         String tipoDaVariavel = ctx.variavel().tipo().getText();
                         
@@ -692,10 +693,11 @@ public class LaGerador extends LaSintaticoBaseVisitor<Void>{
                                         if(!lock)
                                            saida.append("    int* "+ nomeCampoRegistro + ";\n");
                                        break;                       
-                                   default: // Se chegar aqui e um tipo não básico.
+                                   default: // Se chegar aqui é um tipo não básico.
                                        // Não é efetuada a checagem se esta sendo usado um tipo criado antes "registro dentro de registro".
                                        if(!escopoAtual.existe(tipoDaVariavel)){ // Caso o tipo não exista mesmo, entao é um tipo não declarado
-                                           utils.adicionarErroSemantico(ctxVariavelRegistroIdent.IDENT(0).getSymbol(), "tipo " + tipoDaVariavel + " nao declarado\n"); // Aqui esta errado !
+                                           //Aqui adiciona-se um erro semântico
+                                           utils.adicionarErroSemantico(ctxVariavelRegistroIdent.IDENT(0).getSymbol(), "tipo " + tipoDaVariavel + " nao declarado\n");
                                            escopoAtual.adicionar(nomeCampoRegistro, TabelaDeSimbolos.TipoLaIdentificador.VARIAVEL, TabelaDeSimbolos.TipoLaVariavel.INVALIDO);
                                        }
                                        break;
